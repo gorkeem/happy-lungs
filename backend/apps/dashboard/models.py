@@ -4,12 +4,13 @@ from django.contrib.auth.models import User
 from django.forms import ValidationError
 from django.utils import timezone
 from decimal import Decimal
+from django.utils import timezone
 
 # Create your models here.
 
 class DashboardStats(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE) # User
-    quit_date = models.DateField() # Quit smoking date
+    quit_date = models.DateField(default=timezone.now) # Quit smoking date
     # money_saved = models.DecimalField(max_digits=10, decimal_places=2, default=0.00) # Money saved
     # cigarettes_avoided = models.IntegerField(default=0) # Cigarettes avoided
 
