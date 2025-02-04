@@ -45,16 +45,17 @@ def update_dashboard_stats(request):
     if serializer.is_valid():
         serializer.save()
 
+        # Change username
         if new_username:
             user.username = new_username
 
-        # Eğer kullanıcı şifresini değiştirmek istiyorsa
+        # Change password
         if new_password:
             if len(new_password) < 6:
                 return Response({"error": "Password should at least have 6 characters"}, status=status.HTTP_400_BAD_REQUEST)
             user.set_password(new_password)
         
-        # Eğer e-posta değiştiriliyorsa
+        # Change email
         if new_email:
             user.email = new_email
 
