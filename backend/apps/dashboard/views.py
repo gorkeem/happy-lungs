@@ -29,11 +29,37 @@ def register_user(request):
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def update_dashboard_stats(request):
+    user = request.user
+    try:
+        user_stats = DashboardStats.objects.get(user=user)
+    except DashboardStats.DoesNotExist:
+        return Response({"error": "User's dashboard stats not found"}, status=status.HTTP_404_NOT_FOUND)
+    
     user_stats = request.user.dashboardstats  # Get user's dashboard stats
     serializer = DashboardStatsSerializer(user_stats, data=request.data, partial=True)
 
+    new_username = request.data.get("username")
+    new_password = request.data.get("password")
+    new_email = request.data.get("email")
+
     if serializer.is_valid():
         serializer.save()
-        return Response({"message": "Update successful!"})
+
+        if new_username:
+            user.username = new_username
+
+        # Eğer kullanıcı şifresini değiştirmek istiyorsa
+        if new_password:
+            if len(new_password) < 6:
+                return Response({"error": "Password should at least have 6 characters"}, status=status.HTTP_400_BAD_REQUEST)
+            user.set_password(new_password)
+        
+        # Eğer e-posta değiştiriliyorsa
+        if new_email:
+            user.email = new_email
+
+        user.save()
+
+        return Response({"message": "Update successful!"}, status=status.HTTP_200_OK)
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

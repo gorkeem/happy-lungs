@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.forms import ValidationError
 from django.utils import timezone
 from decimal import Decimal
-from django.utils import timezone
 
 # Create your models here.
 
@@ -24,7 +23,7 @@ class DashboardStats(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.user.username} - {self.quit_date}"
+        return f"{self.user.username} - {self.days_since_quit} days since quit"
     
     @property
     def days_since_quit(self):
@@ -84,6 +83,9 @@ class DashboardStats(models.Model):
             'next_milestone': next_milestone
         }
     
+
+
+    
     def save(self, *args, **kwargs):
         """Set default CO baseline only once"""
         # Set baseline CO level if not provided
@@ -92,7 +94,7 @@ class DashboardStats(models.Model):
             self.baseline_co_level = Decimal(self.cigs_per_day) * Decimal('0.5')
         
         # Ensure quit_date is not in the future
-        if self.quit_date > timezone.now().date():
-            raise ValidationError("Quit date cannot be in the future")
+        # if self.quit_date > timezone.now().date():
+        #     raise ValidationError("Quit date cannot be in the future")
         
         super().save(*args, **kwargs)

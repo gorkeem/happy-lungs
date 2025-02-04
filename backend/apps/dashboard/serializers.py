@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import DashboardStats
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 
 # Serializer for the DashboardStats model
@@ -16,8 +17,13 @@ class DashboardStatsSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'quit_date', 'money_saved', 'cigs_per_day',
                    'cost_per_pack', 'cigs_in_pack', 'days_since_quit', 'current_co_level', 'get_healing_milestones',
                    'save', 'cigarettes_avoided', 
-                   'baseline_co_level', 'created_at', 'updated_at'] 
-        
+                   'baseline_co_level', 'created_at', 'updated_at']
+    
+    def validate_quit_date(self, obj):
+        if obj.quit_date > timezone.now().date():
+            raise serializers.ValidationError("Quit date cannot be in the future")
+        return obj.quit_date
+
     def get_days_since_quit(self, obj):
         return obj.days_since_quit
     
@@ -53,8 +59,12 @@ class RegisterSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         # Create the user with a username, email and password
-        user = User.objects.create_user(validated_data['username'], validated_data['email'], validated_data['password'])
-        
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data.get('email', ''),  # Eğer email gönderilmezse boş string kullan
+            password=validated_data['password']
+)
+
         # Create a DashboardStats object for the user with necessary data
         DashboardStats.objects.create(user=user, quit_date=validated_data['quit_date'], cigs_per_day=validated_data['cigs_per_day'],
                                       cost_per_pack=validated_data['cost_per_pack'], cigs_in_pack=validated_data['cigs_in_pack'])
