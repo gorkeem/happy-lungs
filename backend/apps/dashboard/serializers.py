@@ -10,7 +10,6 @@ class DashboardStatsSerializer(serializers.ModelSerializer):
     cigarettes_avoided = serializers.SerializerMethodField()
     current_co_level = serializers.SerializerMethodField()
     get_healing_milestones = serializers.SerializerMethodField()
-    save = serializers.SerializerMethodField()
     
     class Meta:
         model = DashboardStats
@@ -43,7 +42,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     # Necessary field for the user to register
     quit_date = serializers.DateField()
     cigs_per_day = serializers.IntegerField()
-    cost_per_pack = serializers.IntegerField()
+    cost_per_pack = serializers.DecimalField(max_digits=6, decimal_places=2)
     cigs_in_pack = serializers.IntegerField()
 
 
