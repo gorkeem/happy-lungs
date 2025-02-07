@@ -1,17 +1,16 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 
-from django.forms import ValidationError
+# from django.forms import ValidationError
 from django.utils import timezone
 from decimal import Decimal
 
 # Create your models here.
 
-class DashboardStats(models.Model):
+class UserStats(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE) # User
-    quit_date = models.DateField(default=timezone.now) # Quit smoking date
-    # money_saved = models.DecimalField(max_digits=10, decimal_places=2, default=0.00) # Money saved
-    # cigarettes_avoided = models.IntegerField(default=0) # Cigarettes avoided
+    quit_date = models.DateTimeField(default=timezone.now) # Quit smoking date
 
     cigs_per_day = models.PositiveIntegerField(default=20)
     cost_per_pack = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
@@ -23,13 +22,24 @@ class DashboardStats(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.user.username} - {self.days_since_quit} days since quit"
+        return f"{self.user.username} - {self.time_since_quit} since quit"
     
     @property
     def days_since_quit(self):
         if not self.quit_date:
             return 0
         return (timezone.now().date() - self.quit_date).days
+
+    @property
+    def time_since_quit(self):
+        now = timezone.now()
+        time_difference = now - self.quit_date
+        days = time_difference.days
+        seconds = time_difference.seconds
+        hours = seconds // 3600
+        minutes = (seconds % 3600) // 60
+        seconds = seconds % 60
+        return f"{days} days, {hours} hours, {minutes} minutes, {seconds} seconds"
 
     @property
     def money_saved(self):
@@ -63,16 +73,20 @@ class DashboardStats(models.Model):
             (1825, "5 years", "Stroke risk reduces"),
             (3650, "10 years", "Lung cancer risk halves")
         ]
-        
         achieved = []
         next_milestone = None
+        
+        now = timezone.now()
+        time_difference = now - self.quit_date
+        total_hours_since_quit = time_difference.total_seconds() / 3600
+        days_since_quit = total_hours_since_quit / 24
 
         for days_threshold, title, description in milestones:
-            if self.days_since_quit >= days_threshold:
+            if days_since_quit >= days_threshold:
                 achieved.append({'title': title, 'description': description})
             else:
                 if not next_milestone:
-                    days_left = days_threshold - self.days_since_quit
+                    days_left = days_threshold - days_since_quit
                     next_milestone = {
                         'title': title,
                         'description': description,
@@ -83,18 +97,15 @@ class DashboardStats(models.Model):
             'next_milestone': next_milestone
         }
     
-
-
-    
     def save(self, *args, **kwargs):
         """Set default CO baseline only once"""
         # Set baseline CO level if not provided
         if not self.baseline_co_level:
             # More accurate formula: 0.5ppm per cigarette (medical approximation)
             self.baseline_co_level = Decimal(self.cigs_per_day) * Decimal('0.5')
-        
-        # Ensure quit_date is not in the future
-        # if self.quit_date > timezone.now().date():
-        #     raise ValidationError("Quit date cannot be in the future")
-        
         super().save(*args, **kwargs)
+
+# Also make email field unique and required, username field should be unique
+class User(AbstractUser):
+    email = models.EmailField(unique=True, required=True)
+    username = models.CharField(max_length=30, unique=True)
