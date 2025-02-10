@@ -1,23 +1,18 @@
 from django.db import models
-from django.contrib.auth.models import User
 from django.contrib.auth.models import AbstractUser
-
-# from django.forms import ValidationError
 from django.utils import timezone
 from decimal import Decimal
-
-# Create your models here.
+from django.conf import settings
 
 class UserStats(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE) # User
-    quit_date = models.DateTimeField(default=timezone.now) # Quit smoking date
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # User
+    quit_date = models.DateTimeField(default=timezone.now)  # Quit smoking date
 
     cigs_per_day = models.PositiveIntegerField(default=20)
     cost_per_pack = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
     cigs_in_pack = models.PositiveIntegerField(default=20)
     baseline_co_level = models.DecimalField(max_digits=5, decimal_places=2, default=10.00)
 
-    # co_level = models.DecimalField(max_digits=5, decimal_places=2, default=0.00) # CO level  
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -105,7 +100,10 @@ class UserStats(models.Model):
             self.baseline_co_level = Decimal(self.cigs_per_day) * Decimal('0.5')
         super().save(*args, **kwargs)
 
-# Also make email field unique and required, username field should be unique
+# Username field should be unique
 class User(AbstractUser):
-    email = models.EmailField(unique=True, required=True)
+    email = models.EmailField(unique=True)
     username = models.CharField(max_length=30, unique=True)
+
+    def __str__(self):
+        return self.username

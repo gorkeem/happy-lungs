@@ -40,10 +40,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # Third party apps
+    'apps.dashboard',  # Dashboard app
     'rest_framework',
     'rest_framework_simplejwt', # JWT Authentication
     'rest_framework_simplejwt.token_blacklist',  # JWT Blacklist
-    'apps.dashboard.apps.DashboardConfig',  # Dashboard app
     'corsheaders',  # CORS headers
 ]
 
@@ -141,6 +141,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Custom User Model
+AUTH_USER_MODEL = 'dashboard.User'
 
 
 # Internationalization

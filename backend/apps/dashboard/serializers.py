@@ -6,6 +6,8 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
+from django.db import transaction
+from django.contrib.auth.hashers import make_password
 
 # Serializer for the UserStats model
 class UserStatsSerializer(serializers.ModelSerializer):
@@ -52,10 +54,8 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
     class Meta:
-        model = User
-        # fields = ['id', 'username', 'email', 'password', 'quit_date', 'cigs_per_day', 'cost_per_pack', 'cigs_in_pack']
+        model = get_user_model()
         fields = '__all__'
-        # extra_kwargs = {'password': {'write_only': True}}
 
     def validate_password(self, value):
         try:
@@ -77,7 +77,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         return value
 
     def validate_username(self, value):
-        if User.objects.filter(username=value).exists():
+        if get_user_model().objects.filter(username=value).exists():
             raise serializers.ValidationError("This username is already taken.")
         return value
     
@@ -87,18 +87,22 @@ class RegisterSerializer(serializers.ModelSerializer):
         return quit_date
     
     def create(self, validated_data):
-        # Create the user with a username, email and password
-        user = User.objects.create_user(
-            username=validated_data['username'],
-            email=validated_data['email'],
-            password=validated_data['password']
-)
+            with transaction.atomic():  # Rollback if any error occurs
+                user = get_user_model().objects.create_user(
+                    username=validated_data["username"],
+                    email=validated_data["email"],
+                    password=make_password(validated_data["password"]) # Hash the password while registering 
+                )
+                UserStats.objects.create(
+                    user=user,
+                    quit_date=validated_data["quit_date"],
+                    cigs_per_day=validated_data["cigs_per_day"],
+                    cost_per_pack=validated_data["cost_per_pack"],
+                    cigs_in_pack=validated_data["cigs_in_pack"]
+                )
+            return user
 
-        # Create a UserStats object for the user with necessary data
-        UserStats.objects.create(user=user, quit_date=validated_data['quit_date'], cigs_per_day=validated_data['cigs_per_day'],
-                                      cost_per_pack=validated_data['cost_per_pack'], cigs_in_pack=validated_data['cigs_in_pack'])
-        return user
-
+# Serializer for the User model
 class UserSerializer(serializers.ModelSerializer):
     days_since_quit = serializers.SerializerMethodField()
 
@@ -112,3 +116,9 @@ class UserSerializer(serializers.ModelSerializer):
             return dashboard_stats.days_since_quit
         except UserStats.DoesNotExist:
             return None
+        
+    def get_username(self, obj):
+        return obj.username
+    
+    def get_date_joined(self, obj):
+        return obj.date_joined
