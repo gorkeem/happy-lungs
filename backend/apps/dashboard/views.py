@@ -3,7 +3,7 @@ from datetime import timezone
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import UserStats, User
 from .serializers import UserStatsSerializer, RegisterSerializer, UserSerializer
 from rest_framework import status
@@ -16,8 +16,12 @@ from django.contrib.auth.hashers import make_password
 # Get dashboard data
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def dashboard_data(request, user_id):
-    user = get_object_or_404(User, id=user_id)
+def dashboard_data(request, user_id=None):
+    if user_id:
+        user = get_object_or_404(User, id=user_id)
+    else:
+        user = request.user
+
     dashboard = get_object_or_404(UserStats, user=user)
     serializer = UserStatsSerializer(dashboard)
     return Response(serializer.data, status=status.HTTP_200_OK)
