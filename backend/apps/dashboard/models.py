@@ -11,7 +11,7 @@ class UserStats(models.Model):
     cigs_per_day = models.PositiveIntegerField(default=20)
     cost_per_pack = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
     cigs_in_pack = models.PositiveIntegerField(default=20)
-    baseline_co_level = models.DecimalField(max_digits=5, decimal_places=2, default=10.00)
+    baseline_co_level = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -23,7 +23,7 @@ class UserStats(models.Model):
     def days_since_quit(self):
         if not self.quit_date:
             return 0
-        return (timezone.now().date() - self.quit_date).days
+        return (timezone.now() - self.quit_date).days
 
     @property
     def time_since_quit(self):
@@ -38,10 +38,26 @@ class UserStats(models.Model):
 
     @property
     def money_saved(self):
-        if self.days_since_quit <= 0:
+        """
+        Calculate the precise amount of money saved since quitting smoking.
+        """
+        if not self.quit_date or self.cigs_per_day == 0 or self.cost_per_pack == 0 or self.cigs_in_pack == 0:
             return Decimal('0.00')
-        daily_cost = (Decimal(self.cigs_per_day) / self.cigs_in_pack) * self.cost_per_pack
-        return round(daily_cost * self.days_since_quit, 2)
+
+        # Calculate the exact time elapsed since quitting
+        time_diff = timezone.now() - self.quit_date
+        total_hours = time_diff.total_seconds() / 3600  # Convert to hours
+
+        # Calculate cost per cigarette
+        cost_per_cigarette = self.cost_per_pack / self.cigs_in_pack
+
+        # Calculate the number of cigarettes avoided per hour
+        cigarettes_per_hour = Decimal(self.cigs_per_day) / 24
+
+        # Calculate total money saved
+        money_saved = cost_per_cigarette * cigarettes_per_hour * Decimal(total_hours)
+
+        return round(money_saved, 2)
 
     @property
     def cigarettes_avoided(self):
@@ -49,11 +65,28 @@ class UserStats(models.Model):
 
     @property
     def current_co_level(self):
-        if self.days_since_quit <= 0 or self.baseline_co_level <= 0:
+        #Calculate current CO using precise time difference
+        if not self.baseline_co_level or self.baseline_co_level <= 0:
             return Decimal('0.00')
-        hours_since_quit = self.days_since_quit * 24
-        decay_factor = 2 ** (hours_since_quit / 5)  # CO half-life of 5 hours
+        
+        # Calculate precise hours since quitting
+        time_diff = timezone.now() - self.quit_date
+        total_hours = time_diff.total_seconds() / 3600
+        
+        # CO half-life formula (5 hours)
+        decay_factor = 2 ** (total_hours / 5)
         return round(self.baseline_co_level / Decimal(decay_factor), 2)
+    
+    @property
+    def co_level_status(self):
+        if self.current_co_level >= 10:
+            return "Dangerously High"
+        elif self.current_co_level >= 5:
+            return "Elevated"
+        elif self.current_co_level >= 2:
+            return "Moderate"
+        else:
+            return "Normal"
 
     def get_healing_milestones(self):
         milestones = [
@@ -98,6 +131,7 @@ class UserStats(models.Model):
         if not self.baseline_co_level:
             # More accurate formula: 0.5ppm per cigarette (medical approximation)
             self.baseline_co_level = Decimal(self.cigs_per_day) * Decimal('0.5')
+            self.save()
         super().save(*args, **kwargs)
 
 # Username field should be unique

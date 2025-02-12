@@ -22,10 +22,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-kp@g-#-$r6o6!77ig86z#-0sns@i^obs&*q*k!2m+*ko&%(ez5'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = []
 
@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 
     # Third party apps
     'apps.dashboard',  # Dashboard app
+    'apps.forum',  # Forum app
     'rest_framework',
     'rest_framework_simplejwt', # JWT Authentication
     'rest_framework_simplejwt.token_blacklist',  # JWT Blacklist
@@ -70,9 +71,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',  # CORS Middleware
 ]
 
-# CORS_ALLOW_ALL_ORIGINS = True # Allow all origins
-
-
+CORS_ALLOW_ALL_ORIGINS = True # CORS Allow All Origins
 
 ROOT_URLCONF = 'happylungs.urls'
 

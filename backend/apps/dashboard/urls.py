@@ -2,7 +2,7 @@ from django.urls import path
 from .views import dashboard_data, register_user, login_user, logout_user, delete_user, update_user, get_user, get_all_users
 
 urlpatterns = [
-    path('dashboard/', dashboard_data, name='dashboard_data'),
+    path('dashboard/<int:user_id>', dashboard_data, name='dashboard_data'),
     path('register/', register_user, name='register_user'),
     path('login/', login_user, name='login_user'),
     path('logout/', logout_user, name='logout_user'),

@@ -16,22 +16,21 @@ from django.contrib.auth.hashers import make_password
 # Get dashboard data
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def dashboard_data(request):
-    print("Logged in user", request.user)
-    quit_data = get_object_or_404(UserStats, user=request.user)
-    serializer = UserStatsSerializer(quit_data)
-    return Response(serializer.data)
+def dashboard_data(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    dashboard = get_object_or_404(UserStats, user=user)
+    serializer = UserStatsSerializer(dashboard)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 # Register a user
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_user(request):
-    if request.method == 'POST':
-        serializer = RegisterSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"message": "User created successfully!"}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    serializer = RegisterSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({"message": "User created successfully!"}, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # Login user
 @api_view(["POST"])
@@ -51,8 +50,9 @@ def login_user(request):
         refresh = RefreshToken.for_user(user)
         return Response({
             "refresh": str(refresh),
-            "access": str(refresh.access_token)
-        })
+            "access": str(refresh.access_token),
+            "message": "Login successful!"
+        }, status=status.HTTP_200_OK)
     else:
         return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -89,15 +89,6 @@ def delete_user(request):
     return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
 # Update user
-from django.db import transaction
-from django.contrib.auth.hashers import make_password
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework import status
-from .models import User
-from .serializers import UserSerializer
-
 @api_view(["PUT"])
 @permission_classes([IsAuthenticated])
 def update_user(request):
@@ -106,36 +97,49 @@ def update_user(request):
 
     try:
         with transaction.atomic():
+            # Update User fields
             if "username" in data:
                 user.username = data["username"]
-
             if "email" in data:
                 user.email = data["email"]
-
-            if "quit_date" in data:
-                user.quit_date = data["quit_date"]
-
-            if "relapse" in data and data["relapse"] is True:
-                user.quit_date = timezone.now()
-
             if "password" in data:
-                user.password = make_password(data["password"]) # Hash the password 
+                user.password = make_password(data["password"])
+            
+            # Update UserStats fields
+            user_stats = user.userstats  # Get the UserStats instance
+            if "quit_date" in data:
+                user_stats.quit_date = data["quit_date"]
+            if "relapse" in data and data["relapse"] is True:
+                user_stats.quit_date = timezone.now()
+            if "cigs_per_day" in data:
+                user_stats.cigs_per_day = data["cigs_per_day"]
+            if "cost_per_pack" in data:
+                user_stats.cost_per_pack = data["cost_per_pack"]
+            if "cigs_in_pack" in data:
+                user_stats.cigs_in_pack = data["cigs_in_pack"]
 
             user.save()
+            user_stats.save()
             return Response({"message": "User updated successfully!"}, status=status.HTTP_200_OK)
 
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 # Get user
-@api_view(["GET"])
+@api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user(request, user_id):
     user = get_object_or_404(User, id=user_id)
-    if user:
-        serializer = UserSerializer(user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+    user_stats = get_object_or_404(UserStats, user=user)
+    
+    user_serializer = UserSerializer(user)
+    stats_serializer = UserStatsSerializer(user_stats)
+    
+    response_data = {
+        'user': user_serializer.data,
+        'stats': stats_serializer.data
+    }
+    return Response(response_data, status=status.HTTP_200_OK)
  
 # Get all users
 @api_view(["GET"])

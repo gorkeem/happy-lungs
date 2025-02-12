@@ -17,6 +17,7 @@ class UserStatsSerializer(serializers.ModelSerializer):
     cigarettes_avoided = serializers.SerializerMethodField()
     current_co_level = serializers.SerializerMethodField()
     get_healing_milestones = serializers.SerializerMethodField()
+    co_level_status = serializers.SerializerMethodField()
     
     class Meta:
         model = UserStats
@@ -36,6 +37,9 @@ class UserStatsSerializer(serializers.ModelSerializer):
     
     def get_current_co_level(self, obj):
         return obj.current_co_level
+    
+    def get_co_level_status(self, obj):
+        return obj.co_level_status
     
     def get_get_healing_milestones(self, obj):
         return obj.get_healing_milestones()
@@ -87,20 +91,20 @@ class RegisterSerializer(serializers.ModelSerializer):
         return quit_date
     
     def create(self, validated_data):
-            with transaction.atomic():  # Rollback if any error occurs
-                user = get_user_model().objects.create_user(
-                    username=validated_data["username"],
-                    email=validated_data["email"],
-                    password=make_password(validated_data["password"]) # Hash the password while registering 
-                )
-                UserStats.objects.create(
-                    user=user,
-                    quit_date=validated_data["quit_date"],
-                    cigs_per_day=validated_data["cigs_per_day"],
-                    cost_per_pack=validated_data["cost_per_pack"],
-                    cigs_in_pack=validated_data["cigs_in_pack"]
-                )
-            return user
+        with transaction.atomic():  # Rollback if any error occurs
+            user = get_user_model().objects.create_user(
+                username=validated_data["username"],
+                email=validated_data["email"],
+                password=make_password(validated_data["password"]) # Hash the password while registering 
+            )
+            UserStats.objects.create(
+                user=user,
+                quit_date=validated_data["quit_date"],
+                cigs_per_day=validated_data["cigs_per_day"],
+                cost_per_pack=validated_data["cost_per_pack"],
+                cigs_in_pack=validated_data["cigs_in_pack"]
+            )
+        return user
 
 # Serializer for the User model
 class UserSerializer(serializers.ModelSerializer):
@@ -108,7 +112,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = ('id', 'username', 'email', 'date_joined', 'days_since_quit')
+        fields = ['id', 'username', 'email', 'date_joined', 'days_since_quit']
 
     def get_days_since_quit(self, obj):
         try:
