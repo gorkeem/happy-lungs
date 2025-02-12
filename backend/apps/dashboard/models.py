@@ -38,9 +38,6 @@ class UserStats(models.Model):
 
     @property
     def money_saved(self):
-        """
-        Calculate the precise amount of money saved since quitting smoking.
-        """
         if not self.quit_date or self.cigs_per_day == 0 or self.cost_per_pack == 0 or self.cigs_in_pack == 0:
             return Decimal('0.00')
 
@@ -126,7 +123,6 @@ class UserStats(models.Model):
         }
     
     def save(self, *args, **kwargs):
-        """Set default CO baseline only once"""
         # Set baseline CO level if not provided
         if not self.baseline_co_level:
             # More accurate formula: 0.5ppm per cigarette (medical approximation)
