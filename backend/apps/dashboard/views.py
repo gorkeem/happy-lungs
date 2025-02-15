@@ -3,7 +3,7 @@ from datetime import timezone
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from .models import UserStats, User
 from .serializers import UserStatsSerializer, RegisterSerializer, UserSerializer
 from rest_framework import status
@@ -37,7 +37,7 @@ def register_user(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # Login user
-@api_view(["POST"])
+@api_view(['POST'])
 @permission_classes([AllowAny])
 def login_user(request):
     email = request.data.get("email")
@@ -74,7 +74,7 @@ def logout_user(request):
     
 
 # Delete user
-@api_view(["DELETE"])
+@api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_user(request):
     user = request.user
@@ -93,7 +93,7 @@ def delete_user(request):
     return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
 # Update user
-@api_view(["PUT"])
+@api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def update_user(request):
     user = request.user # Get the logged in user
@@ -129,26 +129,32 @@ def update_user(request):
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-# Get user
+
+# Search a specific user by username and get user with stats
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_user(request, user_id):
-    user = get_object_or_404(User, id=user_id)
-    user_stats = get_object_or_404(UserStats, user=user)
-    
-    user_serializer = UserSerializer(user)
-    stats_serializer = UserStatsSerializer(user_stats)
-    
-    response_data = {
-        'user': user_serializer.data,
-        'stats': stats_serializer.data
-    }
-    return Response(response_data, status=status.HTTP_200_OK)
- 
+def search_user(request):
+    username = request.query_params.get("q")
+    if username:
+        user = get_object_or_404(User, username=username)
+        user_stats = get_object_or_404(UserStats, user=user)
+        
+        user_serializer = UserSerializer(user)
+        stats_serializer = UserStatsSerializer(user_stats)
+        
+        response_data = {
+            'user': user_serializer.data,
+            'stats': stats_serializer.data
+        }
+        return Response(response_data, status=status.HTTP_200_OK)
+    return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
 # Get all users
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
 def get_all_users(request):
     users = User.objects.all().order_by("-quit_date") # Get all users and order by quit date   
     serializer = UserSerializer(users, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+

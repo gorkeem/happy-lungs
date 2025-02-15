@@ -14,6 +14,9 @@ from pathlib import Path
 from dotenv import load_dotenv
 import os
 
+# Get values from .env file
+load_dotenv()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -104,8 +107,7 @@ WSGI_APPLICATION = 'happylungs.wsgi.application'
 #     }
 # }
 
-# Get values from .env file
-load_dotenv()
+
 
 DATABASES = {
     'default': {
@@ -117,9 +119,6 @@ DATABASES = {
         'PORT': '5432', 
     }
 }
-
-
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -142,7 +141,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Custom User Model
 AUTH_USER_MODEL = 'dashboard.User'
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
