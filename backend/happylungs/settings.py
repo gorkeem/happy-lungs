@@ -61,6 +61,10 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
+    'DEFAULT_PAGINATION_CLASS': (
+        'rest_framework.pagination.PageNumberPagination',
+    ),
+    'PAGE_SIZE': 10,
 }
 
 MIDDLEWARE = [
@@ -74,7 +78,10 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',  # CORS Middleware
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True # CORS Allow All Origins
+# CORS_ALLOW_ALL_ORIGINS = True # CORS Allow All Origins
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+]
 
 ROOT_URLCONF = 'happylungs.urls'
 

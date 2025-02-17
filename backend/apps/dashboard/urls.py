@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-    dashboard_data, 
+    public_stats, 
     register_user, 
     login_user, 
     logout_user, 
@@ -13,7 +13,7 @@ from .views import (
 urlpatterns = [
     # Dashboard - if you plan on allowing admins to see others' dashboards, keep the <user_id> parameter.
     # Otherwise, you can simply use request.user and remove the parameter.
-    path('dashboard/<int:user_id>/', dashboard_data, name='dashboard_data'),
+    path('stats/<int:user_id>/', public_stats, name='public_stats'),
 
     # Authentication & User management endpoints
     path('auth/register/', register_user, name='register_user'),

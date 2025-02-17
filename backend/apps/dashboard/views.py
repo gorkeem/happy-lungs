@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from .models import UserStats, User
-from .serializers import UserStatsSerializer, RegisterSerializer, UserSerializer
+from .serializers import UserStatsSerializer, RegisterSerializer, UserSerializer, PublicUserSerializer, PublicUserStatsSerializer
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
@@ -16,15 +16,40 @@ from django.contrib.auth.hashers import make_password
 # Get dashboard data
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def dashboard_data(request, user_id=None):
+def public_stats(request, user_id=None):
     if user_id:
-        user = get_object_or_404(User, id=user_id)
+        target_user = get_object_or_404(User, id=user_id)
     else:
-        user = request.user
+        target_user = request.user
 
-    dashboard = get_object_or_404(UserStats, user=user)
-    serializer = UserStatsSerializer(dashboard)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    try:
+        stats_obj = get_object_or_404(UserStats, user=target_user)
+        if target_user == request.user:
+            serializer = UserStatsSerializer(stats_obj)
+        else:
+            serializer = PublicUserStatsSerializer(stats_obj)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Exception:
+        user_serializer = PublicUserSerializer(target_user)
+        return Response({"user": user_serializer.data}, status=status.HTTP_200_OK)
+
+# Check auth
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def me(request):
+    user = request.user
+    user_serializer = UserSerializer(user)
+    try:
+        user_stats = user.userstats
+        stats_serializer = UserStatsSerializer(user_stats)
+        data = {
+            "user": user_serializer.data,
+            "stats": stats_serializer.data,
+        }
+    except Exception:
+        data = {"user": user_serializer.data}
+    return Response(data, status=status.HTTP_200_OK)
+
 
 # Register a user
 @api_view(['POST'])

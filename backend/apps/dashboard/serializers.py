@@ -126,3 +126,57 @@ class UserSerializer(serializers.ModelSerializer):
     
     def get_date_joined(self, obj):
         return obj.date_joined
+    
+# Serializers for getting other users' stats and user info
+class PublicUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = ['username']
+        
+class PublicUserStatsSerializer(serializers.ModelSerializer):
+    user = PublicUserSerializer(read_only=True)
+    time_since_quit = serializers.SerializerMethodField()
+    days_since_quit = serializers.SerializerMethodField()
+    money_saved = serializers.SerializerMethodField()
+    cigarettes_avoided = serializers.SerializerMethodField()
+    current_co_level = serializers.SerializerMethodField()
+    co_level_status = serializers.SerializerMethodField()
+    get_healing_milestones = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = UserStats
+        fields = [
+            'user',
+            'cigs_per_day',
+            'cost_per_pack',
+            'cigs_in_pack',
+            'quit_date',
+            'time_since_quit',
+            'days_since_quit',
+            'money_saved',
+            'cigarettes_avoided',
+            'current_co_level',
+            'co_level_status',
+            'get_healing_milestones'
+        ]
+        
+    def get_time_since_quit(self, obj):
+        return obj.time_since_quit
+
+    def get_days_since_quit(self, obj):
+        return obj.days_since_quit
+
+    def get_money_saved(self, obj):
+        return obj.money_saved
+
+    def get_cigarettes_avoided(self, obj):
+        return obj.cigarettes_avoided
+
+    def get_current_co_level(self, obj):
+        return obj.current_co_level
+
+    def get_co_level_status(self, obj):
+        return obj.co_level_status
+
+    def get_get_healing_milestones(self, obj):
+        return obj.get_healing_milestones()
