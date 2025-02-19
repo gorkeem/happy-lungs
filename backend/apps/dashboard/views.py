@@ -12,6 +12,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.contrib.auth.hashers import make_password
+from django.views.decorators.csrf import csrf_exempt
 
 # Get dashboard data
 @api_view(['GET'])
@@ -34,9 +35,10 @@ def public_stats(request, user_id=None):
         return Response({"user": user_serializer.data}, status=status.HTTP_200_OK)
 
 # Check auth
+@csrf_exempt
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def me(request):
+def check(request):
     user = request.user
     user_serializer = UserSerializer(user)
     try:
@@ -57,8 +59,37 @@ def me(request):
 def register_user(request):
     serializer = RegisterSerializer(data=request.data)
     if serializer.is_valid():
-        serializer.save()
-        return Response({"message": "User created successfully!"}, status=status.HTTP_201_CREATED)
+        user = serializer.save()
+        
+        # Generate tokens
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+        refresh_token = str(refresh)
+        
+        # Serialize the user object
+        user_serializer = UserSerializer(user)
+        
+        response = Response({
+            "message": "User created and logged in successfully!",
+            "user": user_serializer.data
+        }, status=status.HTTP_201_CREATED)
+        
+        # Set cookies
+        response.set_cookie(
+            key="access",
+            value=access_token,
+            httponly=True,
+            secure=False,  # set true in production with https
+            samesite="None"
+        )
+        response.set_cookie(
+            key="refresh",
+            value=refresh_token,
+            httponly=True,
+            secure=False,
+            samesite="None"
+        )
+        return response
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # Login user
@@ -67,21 +98,38 @@ def register_user(request):
 def login_user(request):
     email = request.data.get("email")
     password = request.data.get("password")
-
     try:
         user = get_user_model().objects.get(email=email)
     except get_user_model().DoesNotExist:
         return Response({"error": "User does not exist"}, status=status.HTTP_404_NOT_FOUND)
 
     user = authenticate(username=user.username, password=password)
-
     if user:
         refresh = RefreshToken.for_user(user)
-        return Response({
-            "refresh": str(refresh),
-            "access": str(refresh.access_token),
-            "message": "Login successful!"
-        }, status=status.HTTP_200_OK)
+        access_token = str(refresh.access_token)
+        refresh_token = str(refresh)
+        response = Response({"message": "Login Successful!", "user": {
+        "id": user.id,
+        "username": user.username,
+        "email": user.email
+    }}, status=status.HTTP_200_OK)
+
+        # Set http-only cookies; secure flag should be true in production with https
+        response.set_cookie(
+            key="access",
+            value=access_token,
+            httponly=True,
+            secure=False,  # Change to True when using https in production
+            samesite="None"
+        )
+        response.set_cookie(
+            key="refresh",
+            value=refresh_token,
+            httponly=True,
+            secure=False,
+            samesite="None"
+        )
+        return response
     else:
         return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -90,12 +138,19 @@ def login_user(request):
 @permission_classes([IsAuthenticated])
 def logout_user(request):
     try:
-        refresh_token = request.data["refresh"]
-        token = RefreshToken(refresh_token)
-        token.blacklist()
-        return Response({"message": "Logout successful!"}, status=status.HTTP_205_RESET_CONTENT)
+        # Blacklist refresh token if provided in request data or from cookies
+        refresh_token = request.data.get("refresh") or request.COOKIES.get("refresh")
+        if refresh_token:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+        response = Response({"message": "Logout successful!"}, status=status.HTTP_205_RESET_CONTENT)
+        # Remove cookies
+        response.delete_cookie("access")
+        response.delete_cookie("refresh")
+        return response
     except Exception as e:
         return Response({"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
+
     
 
 # Delete user

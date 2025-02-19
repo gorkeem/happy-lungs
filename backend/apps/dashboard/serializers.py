@@ -1,13 +1,11 @@
 from rest_framework import serializers
 from .models import UserStats
-from django.contrib.auth.models import User
 from django.utils import timezone
 from django.contrib.auth.password_validation import validate_password
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from django.db import transaction
-from django.contrib.auth.hashers import make_password
 
 # Serializer for the UserStats model
 class UserStatsSerializer(serializers.ModelSerializer):
@@ -75,7 +73,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         except ValidationError:
             raise serializers.ValidationError("Invalid email format.")
         
-        if User.objects.filter(email=value).exists():
+        if get_user_model().objects.filter(email=value).exists():
             raise serializers.ValidationError("This email is already in use.")
         
         return value
@@ -95,8 +93,9 @@ class RegisterSerializer(serializers.ModelSerializer):
             user = get_user_model().objects.create_user(
                 username=validated_data["username"],
                 email=validated_data["email"],
-                password=make_password(validated_data["password"]) # Hash the password while registering 
+                password=validated_data["password"]
             )
+
             UserStats.objects.create(
                 user=user,
                 quit_date=validated_data["quit_date"],

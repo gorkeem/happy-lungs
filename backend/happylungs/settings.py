@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 from dotenv import load_dotenv
+from datetime import timedelta
 import os
 
 # Get values from .env file
@@ -56,7 +57,8 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
+        "happylungs.utils.authentication.CookieJWTAuthentication",
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
@@ -78,8 +80,28 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',  # CORS Middleware
 ]
 
-# CORS_ALLOW_ALL_ORIGINS = True # CORS Allow All Origins
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ROTATE_REFRESH_TOKENS": True,
+    "AUTH_COOKIE": "access",  # key name for access token
+    "AUTH_COOKIE_HTTP_ONLY": True,
+    "AUTH_COOKIE_SECURE": False,  # change to True in production
+    "AUTH_COOKIE_SAMESITE": "None",
+}
+
+CORS_ALLOW_CREDENTIALS = True
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SAMESITE = "None"
+SESSION_COOKIE_SECURE = False  # Change to True in production
+SESSION_COOKIE_SAMESITE = "None"
+CSRF_COOKIE_SECURE = False  # Change to True in production
+
 CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+]
+
+CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
 ]
 

@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import (
-    public_stats, 
+    public_stats,
+    check,
     register_user, 
     login_user, 
     logout_user, 
@@ -16,6 +17,7 @@ urlpatterns = [
     path('stats/<int:user_id>/', public_stats, name='public_stats'),
 
     # Authentication & User management endpoints
+    path('auth/check/', check, name='check'),
     path('auth/register/', register_user, name='register_user'),
     path('auth/login/', login_user, name='login_user'),
     path('auth/logout/', logout_user, name='logout_user'),

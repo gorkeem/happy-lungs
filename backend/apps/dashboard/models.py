@@ -127,7 +127,6 @@ class UserStats(models.Model):
         if not self.baseline_co_level:
             # More accurate formula: 0.5ppm per cigarette (medical approximation)
             self.baseline_co_level = Decimal(self.cigs_per_day) * Decimal('0.5')
-            self.save()
         super().save(*args, **kwargs)
 
 # Username field should be unique
@@ -137,3 +136,4 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+    
