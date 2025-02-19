@@ -14,25 +14,24 @@ from django.db import transaction
 from django.contrib.auth.hashers import make_password
 from django.views.decorators.csrf import csrf_exempt
 
-# Get dashboard data
+# Get the stats of a user
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def public_stats(request, user_id=None):
-    if user_id:
-        target_user = get_object_or_404(User, id=user_id)
-    else:
-        target_user = request.user
+    target_user = get_object_or_404(User, id=user_id) if user_id else request.user
 
-    try:
-        stats_obj = get_object_or_404(UserStats, user=target_user)
-        if target_user == request.user:
-            serializer = UserStatsSerializer(stats_obj)
-        else:
-            serializer = PublicUserStatsSerializer(stats_obj)
+    stats_obj = UserStats.objects.filter(user=target_user).first()  # avoid raising 404
+    if stats_obj:
+        serializer = (
+            UserStatsSerializer(stats_obj)
+            if target_user == request.user
+            else PublicUserStatsSerializer(stats_obj)
+        )
         return Response(serializer.data, status=status.HTTP_200_OK)
-    except Exception:
-        user_serializer = PublicUserSerializer(target_user)
-        return Response({"user": user_serializer.data}, status=status.HTTP_200_OK)
+
+    # if no stats, still return user data
+    user_serializer = PublicUserSerializer(target_user)
+    return Response({"user": user_serializer.data}, status=status.HTTP_200_OK)
 
 # Check auth
 @csrf_exempt

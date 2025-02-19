@@ -13,6 +13,7 @@ export const useAuthStore = create((set, get) => ({
     isLoadingStats: false,
 
     checkAuth: async () => {
+        set({ isLoadingStats: true });
         try {
             const response = await axiosInstance.get("/dashboard/auth/check/");
             set({
@@ -24,15 +25,16 @@ export const useAuthStore = create((set, get) => ({
             set({ authUser: null, stats: null });
         } finally {
             set({ isCheckingAuth: false });
+            set({ isLoadingStats: false });
         }
     },
 
-    public_stats: async (user_id) => {
+    public_stats: async () => {
         set({ isLoadingStats: true });
         try {
             const endpoint = user_id
                 ? `/dashboard/stats/${user_id}/`
-                : "/stats/";
+                : "dashboard/stats/";
             const response = await axiosInstance.get(endpoint);
             set({ stats: response.data });
         } catch (error) {
