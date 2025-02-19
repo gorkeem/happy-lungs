@@ -1,13 +1,20 @@
 import React, { useState } from "react";
-
 import { BsFillLungsFill } from "react-icons/bs";
 import { FiLogIn, FiLogOut } from "react-icons/fi";
 import { VscAccount } from "react-icons/vsc";
 import { MdForum } from "react-icons/md";
 import { LuPanelLeftClose, LuPanelLeftOpen } from "react-icons/lu";
+import { useAuthStore } from "../store/useAuthStore";
 
 const Sidebar = () => {
     const [isOpen, setIsOpen] = useState(true);
+    const { authUser, logout } = useAuthStore();
+
+    const handleLogout = (e) => {
+        e.preventDefault();
+        logout();
+    };
+
     const sidebarElementsWelcome = [
         {
             href: "/",
@@ -25,6 +32,7 @@ const Sidebar = () => {
             label: "Create Account",
         },
     ];
+
     const sidebarElementsAuthenticated = [
         {
             href: "/",
@@ -37,11 +45,17 @@ const Sidebar = () => {
             label: "Community",
         },
         {
-            href: "/logout",
+            href: "",
             icon: <FiLogOut size={24} />,
             label: "Logout",
+            onClick: handleLogout,
         },
     ];
+
+    const sidebarContent = authUser
+        ? sidebarElementsAuthenticated
+        : sidebarElementsWelcome;
+
     return (
         <div className="flex h-screen">
             <div
@@ -54,7 +68,7 @@ const Sidebar = () => {
                         isOpen ? "items-start" : "items-center"
                     }`}
                 >
-                    {sidebarElementsWelcome.map(({ href, icon, label }) => (
+                    {sidebarContent.map(({ href, icon, label, onClick }) => (
                         <div
                             key={href}
                             className="group flex items-center w-full px-4 py-2 rounded-lg transition-all duration-300 hover:bg-gray-700 hover:scale-105"
@@ -62,6 +76,7 @@ const Sidebar = () => {
                             <a
                                 href={href}
                                 className="flex items-center space-x-2 text-white"
+                                onClick={onClick}
                             >
                                 {icon}
                                 {isOpen && (
