@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 export const useAuthStore = create((set, get) => ({
     authUser: null,
     stats: null,
+    users_public_stats: null, // for public profiles, need to use it in public_stats
     isCheckingAuth: true,
     isLoggingIn: false,
     isSigningUp: false,
@@ -29,12 +30,12 @@ export const useAuthStore = create((set, get) => ({
         }
     },
 
-    public_stats: async () => {
+    public_stats: async (user_id) => {
         set({ isLoadingStats: true });
         try {
             const endpoint = user_id
                 ? `/dashboard/stats/${user_id}/`
-                : "dashboard/stats/";
+                : "/dashboard/stats/";
             const response = await axiosInstance.get(endpoint);
             set({ stats: response.data });
         } catch (error) {
@@ -53,6 +54,7 @@ export const useAuthStore = create((set, get) => ({
                 data
             );
             set({ authUser: response.data.user });
+            await get().checkAuth();
             toast.success("Account created successfully!");
         } catch (error) {
             toast.error(error.response?.data?.message || "Signup failed");
@@ -69,6 +71,7 @@ export const useAuthStore = create((set, get) => ({
                 data
             );
             set({ authUser: response.data.user });
+            await get().checkAuth();
             toast.success("Logged in successfully!");
         } catch (error) {
             toast.error(error.response?.data?.message || "Login failed");
@@ -100,7 +103,7 @@ export const useAuthStore = create((set, get) => ({
             set({ authUser: { ...get().authUser, ...data } });
 
             if ("quit_date" in data || "cigs_per_day" in data) {
-                await get().public_stats();
+                await get().checkAuth();
             }
 
             toast.success("Profile updated successfully!");

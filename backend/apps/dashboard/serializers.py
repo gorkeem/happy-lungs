@@ -10,7 +10,7 @@ from django.db import transaction
 # Serializer for the UserStats model
 class UserStatsSerializer(serializers.ModelSerializer):
     quit_date = serializers.DateTimeField()
-    # time_since_quit = serializers.SerializerMethodField()
+    time_since_quit = serializers.SerializerMethodField()
     days_since_quit = serializers.SerializerMethodField()
     money_saved = serializers.SerializerMethodField()
     cigarettes_avoided = serializers.SerializerMethodField()
@@ -22,10 +22,10 @@ class UserStatsSerializer(serializers.ModelSerializer):
         model = UserStats
         fields = '__all__'
 
-    # def get_time_since_quit(self, obj):
-    #     return obj.time_since_quit
-    def get_quit_date(self, obj):
-        return obj.quit_date
+    def get_time_since_quit(self, obj):
+        return obj.time_since_quit
+    # def get_quit_date(self, obj):
+    #     return obj.quit_date
 
     def get_days_since_quit(self, obj):
         return obj.days_since_quit

@@ -5,7 +5,7 @@ import DancingIcon from "../components/DancingIcon";
 
 const WelcomePage = () => {
     return (
-        <div className="flex h-screen bg-gray-900">
+        <div className="flex h-screen">
             {/* Sidebar */}
             <Sidebar />
             {/* Main Content */}
@@ -14,9 +14,10 @@ const WelcomePage = () => {
                 <h1 className="text-3xl font-bold mt-4">
                     Welcome to HappyLungs
                 </h1>
-                <p className="text-gray-600 mt-2 max-w-md text-center">
-                    Track your progress, join a community, and quit smoking for
-                    good.
+                <p className="mt-2 max-w-md text-center">
+                    Track your progress, join a community, have your place in
+                    the leaderboard and <br />
+                    <strong>quit smoking for good</strong>
                 </p>
             </div>
         </div>

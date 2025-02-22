@@ -5,11 +5,15 @@ import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import ProfilePage from "./pages/ProfilePage";
 import WelcomePage from "./pages/WelcomePage";
+import Leaderboard from "./pages/Leaderboard";
 import { useAuthStore } from "./store/useAuthStore";
 import { Toaster } from "react-hot-toast";
+import { useThemeStore } from "./store/useThemeStore";
+import CommunityPage from "./pages/CommunityPage";
 
 const App = () => {
     const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
+    const { lightTheme } = useThemeStore();
 
     useEffect(() => {
         checkAuth();
@@ -26,7 +30,7 @@ const App = () => {
     }
 
     return (
-        <div className="font-sans">
+        <div data-theme={lightTheme ? "pastel" : "dark"} className="font-mono">
             <Routes>
                 <Route
                     path="/"
@@ -42,10 +46,26 @@ const App = () => {
                     path="/login"
                     element={!authUser ? <LoginPage /> : <Navigate to="/" />}
                 />
-                <Route
+                {/* <Route
                     path="/profile"
                     element={
-                        authUser ? <ProfilePage /> : <Navigate to="/login" />
+                        authUser ? <ProfilePage /> : <Navigate to="/welcome" />
+                    }
+                /> */}
+                <Route
+                    path="/community"
+                    element={
+                        authUser ? (
+                            <CommunityPage />
+                        ) : (
+                            <Navigate to="/welcome" />
+                        )
+                    }
+                />
+                <Route
+                    path="/leaderboard"
+                    element={
+                        authUser ? <Leaderboard /> : <Navigate to="/welcome" />
                     }
                 />
                 <Route

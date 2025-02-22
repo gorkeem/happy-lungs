@@ -34,13 +34,13 @@ const LoginPage = () => {
         }
     };
     return (
-        <div className="flex h-screen bg-gray-900">
+        <div className="flex h-screen">
             <Sidebar />
             <div className="flex flex-col items-center justify-center flex-grow">
                 <DancingIcon w="50" h="50" />
                 <form
                     onSubmit={handleSubmit}
-                    className="bg-gray-800 p-6 rounded-lg shadow-md space-y-4 w-80"
+                    className="p-6 rounded-lg shadow-md space-y-4 w-80"
                 >
                     <h2 className="text-2xl font-bold text-center">
                         Welcome to HappyLungs

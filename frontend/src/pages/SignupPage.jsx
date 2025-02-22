@@ -79,13 +79,13 @@ const SignupPage = () => {
     };
 
     return (
-        <div className="flex h-screen bg-gray-900">
+        <div className="flex h-screen">
             <Sidebar />
             <div className="flex flex-col justify-center items-center flex-grow">
                 <DancingIcon w="50" h="50" />
                 <form
                     onSubmit={step === 1 ? handleNext : handleSubmit}
-                    className="bg-gray-800 p-6 rounded-lg shadow-md space-y-4 w-80"
+                    className="p-6 rounded-lg shadow-md space-y-4 w-80"
                 >
                     <h2 className="text-2xl font-bold text-center">
                         Create Account
@@ -216,6 +216,7 @@ const SignupPage = () => {
                                 <input
                                     name="cigs_per_day"
                                     value={formData.cigs_per_day}
+                                    placeholder="e.g. 12"
                                     onChange={handleChange}
                                     className="input input-bordered w-full"
                                 />
@@ -229,6 +230,7 @@ const SignupPage = () => {
                                 <input
                                     name="cigs_in_pack"
                                     value={formData.cigs_in_pack}
+                                    placeholder="e.g. 20"
                                     onChange={handleChange}
                                     className="input input-bordered w-full"
                                 />
@@ -236,12 +238,13 @@ const SignupPage = () => {
                             <div className="form-control">
                                 <label className="label">
                                     <span className="label-text font-medium">
-                                        Cost per Pack (e.g. 4.50)
+                                        Cost per Pack (€)
                                     </span>
                                 </label>
                                 <input
                                     name="cost_per_pack"
                                     value={formData.cost_per_pack}
+                                    placeholder="e.g. 5.99"
                                     onChange={handleChange}
                                     className="input input-bordered w-full"
                                 />
