@@ -8,7 +8,8 @@ from .views import (
     delete_user, 
     update_user, 
     search_user, 
-    get_all_users
+    # get_all_users
+    leaderboard,
 )
 
 urlpatterns = [
@@ -25,6 +26,7 @@ urlpatterns = [
     path('auth/delete/', delete_user, name='delete_user'),
 
     # User endpoints (admin only or public depending on your use-case)
-    path('users/', get_all_users, name='get_all_users'),
+    # path('users/', get_all_users, name='get_all_users'),
+    path('leaderboard/', leaderboard, name='leaderboard'),
     path('users/search/', search_user, name='search_user'),
 ]

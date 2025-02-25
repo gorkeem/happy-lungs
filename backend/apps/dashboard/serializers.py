@@ -24,8 +24,6 @@ class UserStatsSerializer(serializers.ModelSerializer):
 
     def get_time_since_quit(self, obj):
         return obj.time_since_quit
-    # def get_quit_date(self, obj):
-    #     return obj.quit_date
 
     def get_days_since_quit(self, obj):
         return obj.days_since_quit
@@ -131,9 +129,11 @@ class UserSerializer(serializers.ModelSerializer):
     
 # Serializers for getting other users' stats and user info
 class PublicUserSerializer(serializers.ModelSerializer):
+    date_joined = serializers.DateTimeField(format="%d/%m/%Y")
+    
     class Meta:
         model = get_user_model()
-        fields = ['username']
+        fields = ['username', 'date_joined']
         
 class PublicUserStatsSerializer(serializers.ModelSerializer):
     user = PublicUserSerializer(read_only=True)

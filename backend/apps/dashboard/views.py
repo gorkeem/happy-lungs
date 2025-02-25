@@ -229,11 +229,21 @@ def search_user(request):
     return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
-# Get all users NEEDS A FIX FOR THE LEADERBOARD
+# # Get all users NEEDS A FIX FOR THE LEADERBOARD
+# @api_view(['GET'])
+# @permission_classes([IsAdminUser])
+# def get_all_users(request):
+#     users = get_user_model().objects.all().order_by("-quit_date") # Get all users and order by quit date   
+#     serializer = UserSerializer(users, many=True)
+#     return Response(serializer.data, status=status.HTTP_200_OK)
+
+# In views.py
 @api_view(['GET'])
-@permission_classes([IsAdminUser])
-def get_all_users(request):
-    users = get_user_model().objects.all().order_by("-quit_date") # Get all users and order by quit date   
-    serializer = UserSerializer(users, many=True)
+@permission_classes([IsAuthenticated])
+def leaderboard(request):
+    # Ordering by quit_date ascending so earlier quit_date = higher days quit
+    user_stats = UserStats.objects.all().order_by('quit_date')
+    serializer = PublicUserStatsSerializer(user_stats, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
 
