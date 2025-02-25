@@ -67,7 +67,7 @@ const App = () => {
                         authUser ? (
                             <LeaderboardPage />
                         ) : (
-                            <Navigate to="/welcome" />
+                            <Navigate to="/login" />
                         )
                     }
                 />

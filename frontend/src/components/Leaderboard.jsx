@@ -1,5 +1,24 @@
 import React, { useEffect } from "react";
 import { useAuthStore } from "../store/useAuthStore";
+import { motion } from "framer-motion";
+
+const containerVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: {
+            duration: 0.5,
+            when: "beforeChildren",
+            staggerChildren: 0.1,
+        },
+    },
+};
+
+const rowVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 },
+};
 
 const Leaderboard = () => {
     const { isLoadingLeaderboard, leaderboard_list, leaderboard } =
@@ -16,7 +35,12 @@ const Leaderboard = () => {
                     <span className="loading loading-spinner loading-md"></span>
                 </div>
             ) : (
-                <div className="p-5">
+                <motion.div
+                    className="p-5"
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                >
                     <h1 className="text-3xl font-bold mb-4">Leaderboard</h1>
                     <div className="overflow-x-auto">
                         <table className="w-full table-fixed divide-y divide-gray-200">
@@ -41,9 +65,26 @@ const Leaderboard = () => {
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {leaderboard_list.map((item, index) => (
-                                    <tr key={`${item.user.id}-${index}`}>
+                                    <motion.tr
+                                        key={`${item.user.id}-${index}`}
+                                        variants={rowVariants}
+                                    >
                                         <td className="px-2 py-2">
-                                            {index + 1}
+                                            {index + 1 === 1 ? (
+                                                <span className="text-yellow-500">
+                                                    🥇
+                                                </span>
+                                            ) : index + 1 === 2 ? (
+                                                <span className="text-gray-500">
+                                                    🥈
+                                                </span>
+                                            ) : index + 1 === 3 ? (
+                                                <span className="text-orange-500">
+                                                    🥉
+                                                </span>
+                                            ) : (
+                                                index + 1
+                                            )}
                                         </td>
                                         <td className="px-2 py-2">
                                             {item.user.username}
@@ -57,12 +98,12 @@ const Leaderboard = () => {
                                         <td className="px-2 py-2 hidden md:table-cell">
                                             {item.user.date_joined}
                                         </td>
-                                    </tr>
+                                    </motion.tr>
                                 ))}
                             </tbody>
                         </table>
                     </div>
-                </div>
+                </motion.div>
             )}
         </div>
     );

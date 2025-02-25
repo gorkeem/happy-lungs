@@ -51,6 +51,29 @@ def check(request):
         data = {"user": user_serializer.data}
     return Response(data, status=status.HTTP_200_OK)
 
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([])  # Allow anyone to call refresh
+def refresh_token(request):
+    refresh_token = request.COOKIES.get("refresh")
+    if not refresh_token:
+        return Response({"error": "Refresh token not provided"}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        refresh = RefreshToken(refresh_token)
+        new_access_token = str(refresh.access_token)
+        response = Response({"message": "Token refreshed"}, status=status.HTTP_200_OK)
+        # Update the access token cookie
+        response.set_cookie(
+            key="access",
+            value=new_access_token,
+            httponly=True,
+            secure=False,  # change to True in production
+            samesite="None"
+        )
+        return response
+    except Exception as e:
+        return Response({"error": "Invalid refresh token"}, status=status.HTTP_400_BAD_REQUEST)
+
 
 # Register a user
 @api_view(['POST'])
@@ -228,16 +251,7 @@ def search_user(request):
         return Response(response_data, status=status.HTTP_200_OK)
     return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
-
-# # Get all users NEEDS A FIX FOR THE LEADERBOARD
-# @api_view(['GET'])
-# @permission_classes([IsAdminUser])
-# def get_all_users(request):
-#     users = get_user_model().objects.all().order_by("-quit_date") # Get all users and order by quit date   
-#     serializer = UserSerializer(users, many=True)
-#     return Response(serializer.data, status=status.HTTP_200_OK)
-
-# In views.py
+# Get the leaderboard
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def leaderboard(request):

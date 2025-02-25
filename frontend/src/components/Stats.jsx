@@ -6,11 +6,11 @@ import Milestones from "./Milestones";
 
 const containerVariants = {
     hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { staggerChildren: 0.2 } },
+    show: { opacity: 1, transition: { staggerChildren: 0.3 } },
 };
 
 const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 50 },
     show: { opacity: 1, y: 0 },
 };
 
@@ -130,7 +130,14 @@ const Stats = () => {
                         </motion.div>
 
                         {/* healing milestones */}
-                        <Milestones milestones={stats.get_healing_milestones} />
+                        <motion.div
+                            className="stats shadow-xl p-4 flex flex-wrap gap-4"
+                            variants={itemVariants}
+                        >
+                            <Milestones
+                                milestones={stats.get_healing_milestones}
+                            />
+                        </motion.div>
                     </motion.div>
                 ) : (
                     <h1 className="text-xl text-gray-700">

@@ -9,7 +9,7 @@ const Milestones = ({ milestones }) => {
     const toggleDropdown = () => setOpen(!open);
 
     return (
-        <div className="card shadow-xl">
+        <div className="card">
             <div className="card-body">
                 <h2 className="card-title">Healing milestones</h2>
                 {milestones?.next_milestone && (
