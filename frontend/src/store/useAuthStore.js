@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
+import Leaderboard from "../components/Leaderboard";
 
 export const useAuthStore = create((set, get) => ({
     authUser: null,
@@ -12,6 +13,8 @@ export const useAuthStore = create((set, get) => ({
     isLoggingOut: false,
     isUpdatingProfile: false,
     isLoadingStats: false,
+    leaderboard_list: [],
+    isLoadingLeaderboard: false,
 
     checkAuth: async () => {
         set({ isLoadingStats: true });
@@ -37,10 +40,10 @@ export const useAuthStore = create((set, get) => ({
                 ? `/dashboard/stats/${user_id}/`
                 : "/dashboard/stats/";
             const response = await axiosInstance.get(endpoint);
-            set({ stats: response.data });
+            set({ users_public_stats: response.data });
         } catch (error) {
             console.log("Error in public_stats", error);
-            set({ stats: null });
+            set({ users_public_stats: null });
         } finally {
             set({ isLoadingStats: false });
         }
@@ -111,6 +114,20 @@ export const useAuthStore = create((set, get) => ({
             toast.error(error.response?.data?.message || "Update failed");
         } finally {
             set({ isUpdatingProfile: false });
+        }
+    },
+    leaderboard: async () => {
+        set({ isLoadingLeaderboard: true });
+        try {
+            const response = await axiosInstance.get("/dashboard/leaderboard/");
+            set({ leaderboard_list: response.data });
+        } catch (error) {
+            console.log("error in leaderboard", error);
+            toast.error(
+                error.response?.data?.message || "Failed to load leaderboard"
+            );
+        } finally {
+            set({ isLoadingLeaderboard: false });
         }
     },
 }));

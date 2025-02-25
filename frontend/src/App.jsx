@@ -3,9 +3,8 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
-import ProfilePage from "./pages/ProfilePage";
 import WelcomePage from "./pages/WelcomePage";
-import Leaderboard from "./pages/Leaderboard";
+import LeaderboardPage from "./pages/LeaderboardPage";
 import { useAuthStore } from "./store/useAuthStore";
 import { Toaster } from "react-hot-toast";
 import { useThemeStore } from "./store/useThemeStore";
@@ -65,7 +64,11 @@ const App = () => {
                 <Route
                     path="/leaderboard"
                     element={
-                        authUser ? <Leaderboard /> : <Navigate to="/welcome" />
+                        authUser ? (
+                            <LeaderboardPage />
+                        ) : (
+                            <Navigate to="/welcome" />
+                        )
                     }
                 />
                 <Route

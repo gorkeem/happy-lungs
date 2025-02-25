@@ -1,16 +1,16 @@
-import React, { useEffect } from "react";
+import React from "react";
+import Leaderboard from "../components/Leaderboard";
 import Sidebar from "../components/Sidebar";
-import Stats from "../components/Stats";
 
-const HomePage = () => {
+const LeaderboardPage = () => {
     return (
         <div className="flex h-screen">
             {/* sidebar */}
             <Sidebar />
             {/* main content */}
-            <Stats />
+            <Leaderboard />
         </div>
     );
 };
 
-export default HomePage;
+export default LeaderboardPage;

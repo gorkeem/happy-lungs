@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import DancingIcon from "./DancingIcon";
 import { motion } from "framer-motion";
@@ -6,10 +6,7 @@ import Milestones from "./Milestones";
 
 const containerVariants = {
     hidden: { opacity: 0 },
-    show: {
-        opacity: 1,
-        transition: { staggerChildren: 0.2 },
-    },
+    show: { opacity: 1, transition: { staggerChildren: 0.2 } },
 };
 
 const itemVariants = {
@@ -21,21 +18,23 @@ const Stats = () => {
     const { authUser, isLoadingStats, stats, isCheckingAuth } = useAuthStore();
 
     return (
-        <div className="flex flex-col p-4 h-screen">
+        <div className="flex flex-col min-h-screen">
             {/* header */}
             <header className="p-4 shadow-md">
                 <div className="flex items-center space-x-4">
                     <DancingIcon w="50" h="50" />
                     <h1 className="text-3xl font-bold">
-                        <span>{authUser?.username}'s stats</span>
+                        {authUser?.username}'s stats
                     </h1>
                 </div>
             </header>
 
             {/* main content */}
-            <main className="flex-1 overflow-y-auto p-10">
+            <main className="flex-1 overflow-y-auto p-4">
                 {isLoadingStats || isCheckingAuth ? (
-                    <span className="loading loading-spinner loading-md"></span>
+                    <div className="flex items-center justify-center h-full">
+                        <span className="loading loading-spinner loading-md"></span>
+                    </div>
                 ) : stats ? (
                     <motion.div
                         className="space-y-8"
@@ -43,30 +42,38 @@ const Stats = () => {
                         initial="hidden"
                         animate="show"
                     >
-                        {/* stats cards */}
+                        {/* stats card */}
                         <motion.div
-                            className="stats shadow-xl"
+                            className="stats shadow-xl p-4"
                             variants={itemVariants}
                         >
                             <div className="stat">
-                                <div className="stat-title">smoke free for</div>
-                                <div className="stat-value">
+                                <div className="stat-title text-sm">
+                                    Smoke free for
+                                </div>
+                                <div className="stat-value text-xl">
                                     {stats.time_since_quit}
                                 </div>
-                                <div className="stat-desc">progress made</div>
+                                <div className="stat-desc text-xs">
+                                    Progress made
+                                </div>
                             </div>
                         </motion.div>
 
                         {/* co level card */}
                         <motion.div
-                            className={`card shadow-xl ${
+                            className={`card shadow-xl p-4 ${
                                 stats.current_co_level === 0 ? "hidden" : ""
                             }`}
                             variants={itemVariants}
                         >
                             <div className="card-body">
-                                <h2 className="card-title">co level status</h2>
-                                <p>{stats.co_level_status}</p>
+                                <h2 className="card-title text-lg">
+                                    Co level status
+                                </h2>
+                                <p className="text-sm">
+                                    {stats.co_level_status}
+                                </p>
                                 <div className="w-full mt-4">
                                     <progress
                                         className="progress progress-info w-full"
@@ -77,34 +84,46 @@ const Stats = () => {
                             </div>
                         </motion.div>
 
-                        {/* mini stats */}
+                        {/* mini stats using flex-wrap */}
                         <motion.div
-                            className="stats shadow-xl p-4"
+                            className="stats shadow-xl p-4 flex flex-wrap gap-4"
                             variants={itemVariants}
                         >
-                            <div className="stat">
-                                <div className="stat-title">money saved</div>
-                                <div className="stat-value">
+                            <div className="stat flex-1 min-w-[150px]">
+                                <div className="stat-title text-sm">
+                                    Money saved
+                                </div>
+                                <div className="stat-value text-lg">
                                     {stats.money_saved}€
                                 </div>
-                                <div className="stat-desc">bank boost</div>
+                                <div className="stat-desc text-xs">
+                                    Bank boost
+                                </div>
                             </div>
-                            <div className="stat">
-                                <div className="stat-title">cigs avoided</div>
-                                <div className="stat-value">
+                            <div className="stat flex-1 min-w-[150px]">
+                                <div className="stat-title text-sm">
+                                    Cigarettes avoided
+                                </div>
+                                <div className="stat-value text-lg">
                                     {stats.cigarettes_avoided}
                                 </div>
-                                <div className="stat-desc">health wins</div>
+                                <div className="stat-desc text-xs">
+                                    Health wins
+                                </div>
                             </div>
-                            <div className="stat">
-                                <div className="stat-title">cigs per day</div>
-                                <div className="stat-value">
+                            <div className="stat flex-1 min-w-[150px]">
+                                <div className="stat-title text-sm">
+                                    Cigarettes per day
+                                </div>
+                                <div className="stat-value text-lg">
                                     {stats.cigs_per_day}
                                 </div>
                             </div>
-                            <div className="stat">
-                                <div className="stat-title">cost per pack</div>
-                                <div className="stat-value">
+                            <div className="stat flex-1 min-w-[150px]">
+                                <div className="stat-title text-sm">
+                                    Cost per pack
+                                </div>
+                                <div className="stat-value text-lg">
                                     {stats.cost_per_pack}€
                                 </div>
                             </div>
@@ -121,7 +140,7 @@ const Stats = () => {
             </main>
 
             {/* footer */}
-            <footer className=" p-2 text-center">
+            <footer className="p-2 text-center">
                 &copy; {new Date().getFullYear()} HappyLungs
             </footer>
         </div>

@@ -47,14 +47,14 @@ const Sidebar = () => {
             label: "HappyLungs",
         },
         {
-            href: "/community",
-            icon: <MdForum size={24} />,
-            label: "Community",
-        },
-        {
             href: "/leaderboard",
             icon: <MdLeaderboard size={24} />,
             label: "Leaderboard",
+        },
+        {
+            href: "/community",
+            icon: <MdForum size={24} />,
+            label: "Community",
         },
         {
             href: "",
