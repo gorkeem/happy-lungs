@@ -3,11 +3,18 @@ import { useAuthStore } from "../store/useAuthStore";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { FaChevronLeft } from "react-icons/fa";
+import ConfirmModal from "./ConfirmModal";
 
 const Settings = () => {
-    const { authUser, stats, update_profile, isUpdatingProfile } =
-        useAuthStore();
+    const {
+        authUser,
+        stats,
+        update_profile,
+        isUpdatingProfile,
+        delete_account,
+    } = useAuthStore();
     const navigate = useNavigate();
+    const [showConfirm, setShowConfirm] = useState(false);
 
     const [formData, setFormData] = useState({
         username: authUser?.username || "",
@@ -29,6 +36,18 @@ const Settings = () => {
         await update_profile(formData);
         navigate("/");
     };
+    const handleDeleteAccount = () => {
+        setShowConfirm(true);
+    };
+
+    const confirmDelete = async () => {
+        await delete_account();
+        setShowConfirm(false);
+    };
+
+    const cancelDelete = () => {
+        setShowConfirm(false);
+    };
 
     return (
         <div className="min-h-screen flex-1 p-6 bg-base-200 flex justify-center items-start">
@@ -38,6 +57,13 @@ const Settings = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
             >
+                {showConfirm && (
+                    <ConfirmModal
+                        message="Are you sure you want to delete this post?"
+                        onConfirm={confirmDelete}
+                        onCancel={cancelDelete}
+                    />
+                )}
                 <button
                     className="flex items-center p-3 rounded-btn btn-outline"
                     onClick={() => navigate("/")}
@@ -46,7 +72,7 @@ const Settings = () => {
                     Go Back
                 </button>
                 <h1 className="text-3xl font-bold mb-6">Settings</h1>
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-4 p-6">
                     <div className="form-control">
                         <label className="label">Username</label>
                         <input
@@ -123,6 +149,7 @@ const Settings = () => {
                             />
                         </div>
                     </div>
+                    {/* <div className="flex flex-col space-y-4"> */}
                     <button
                         type="submit"
                         className="btn btn-primary w-full"
@@ -130,7 +157,17 @@ const Settings = () => {
                     >
                         {isUpdatingProfile ? "Updating..." : "Save Changes"}
                     </button>
+
+                    {/* </div> */}
                 </form>
+                <div className="flex justify-between items-center mt-4">
+                    <button
+                        className="btn btn-error btn-outline px-4 py-1 shadow-md hover:bg-red-600 hover:text-white transition"
+                        onClick={handleDeleteAccount}
+                    >
+                        Delete Account
+                    </button>
+                </div>
             </motion.div>
         </div>
     );

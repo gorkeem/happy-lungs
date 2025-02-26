@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 export const useAuthStore = create((set, get) => ({
     authUser: null,
     stats: null,
-    users_public_stats: null, // for public profiles, need to use it in public_stats
+    users_public_stats: null,
     isCheckingAuth: true,
     isLoggingIn: false,
     isSigningUp: false,
@@ -42,6 +42,7 @@ export const useAuthStore = create((set, get) => ({
             set({ users_public_stats: response.data });
         } catch (error) {
             console.log("Error in public_stats", error);
+            toast.error("Failed to load profile");
             set({ users_public_stats: null });
         } finally {
             set({ isLoadingStats: false });
@@ -115,6 +116,18 @@ export const useAuthStore = create((set, get) => ({
             set({ isUpdatingProfile: false });
         }
     },
+    delete_account: async () => {
+        try {
+            await axiosInstance.delete("/dashboard/auth/delete/");
+            set({ authUser: null, stats: null });
+            toast.success("Account deleted successfully!");
+        } catch (error) {
+            toast.error(
+                error.response?.data?.message || "Account deletion failed"
+            );
+        }
+    },
+
     relapse: async () => {
         try {
             const response = await axiosInstance.post(

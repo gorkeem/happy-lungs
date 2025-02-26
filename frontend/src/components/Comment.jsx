@@ -73,14 +73,18 @@ const Comment = ({ comment, onLike, postId }) => {
                 ) : (
                     <p className="mb-1">{comment.content}</p>
                 )}
-                <div className="flex items-center space-x-2 text-xs">
+                <div className="flex items-center text-xs">
                     <button
                         onClick={() => onLike(comment.id)}
                         className="btn btn-xs btn-accent"
                     >
                         Like
                     </button>
-                    <span>{comment.total_likes} Likes</span>
+                    <span className="ml-4">
+                        {comment.total_likes <= 1
+                            ? comment.total_likes + " " + " Like"
+                            : comment.total_likes + " " + " Likes"}
+                    </span>
                     {authUser?.username === comment.user && !editing && (
                         <div className="flex space-x-2 ml-auto">
                             <button

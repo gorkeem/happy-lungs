@@ -172,10 +172,14 @@ const Post = ({ post }) => {
             )}
             {/* Post Meta & Actions */}
             <div className="flex items-center space-x-4 text-sm text-base-content/80">
-                <button onClick={handleLike} className="btn btn-sm btn-primary">
+                <button onClick={handleLike} className="btn btn-sm btn-accent">
                     Like
                 </button>
-                <span>{post.total_likes} Likes</span>
+                <span>
+                    {post.total_likes <= 1
+                        ? post.total_likes + " " + " Like"
+                        : post.total_likes + " " + " Likes"}
+                </span>
                 <button
                     onClick={handleToggleComments}
                     className="btn btn-sm btn-secondary"

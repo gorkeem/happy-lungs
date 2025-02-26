@@ -180,19 +180,21 @@ def logout_user(request):
 @permission_classes([IsAuthenticated])
 def delete_user(request):
     user = request.user
-    if user:
-        try:
-            refresh_token = request.data.get("refresh")
-            if refresh_token:
-                token = RefreshToken(refresh_token)
-                token.blacklist()
-        except Exception:
-            pass
+    refresh_token = request.data.get("refresh") or request.COOKIES.get("refresh")
 
-        user.delete()
-        return Response({"message": "User deleted successfully!"}, status=status.HTTP_204_NO_CONTENT)
+    try:
+        if refresh_token:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+    except Exception as e:
+        return Response({"error": f"Failed to blacklist token: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
 
-    return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+    user.delete()
+    response = Response({"message": "User deleted successfully! Tokens invalidated."}, status=status.HTTP_204_NO_CONTENT)
+    response.delete_cookie("access")
+    response.delete_cookie("refresh")
+    return response
+
 
 # Update user
 @api_view(['PUT'])

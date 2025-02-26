@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { BsFillLungsFill } from "react-icons/bs";
 import { FiLogIn, FiLogOut } from "react-icons/fi";
 import { IoPersonAddSharp } from "react-icons/io5";
+import { IoMdSettings } from "react-icons/io";
 import { MdForum, MdLeaderboard } from "react-icons/md";
 import { LuPanelLeftClose, LuPanelLeftOpen } from "react-icons/lu";
 import { useAuthStore } from "../store/useAuthStore";
@@ -55,6 +56,11 @@ const Sidebar = () => {
             href: "/community",
             icon: <MdForum size={24} />,
             label: "Community",
+        },
+        {
+            href: "/settings",
+            icon: <IoMdSettings size={24} />,
+            label: "Settings",
         },
         {
             href: "",
