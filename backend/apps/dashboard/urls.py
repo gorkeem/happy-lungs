@@ -6,7 +6,8 @@ from .views import (
     login_user, 
     logout_user, 
     delete_user, 
-    update_user, 
+    update_user,
+    relapse, 
     search_user, 
     leaderboard,
     refresh_token
@@ -25,6 +26,7 @@ urlpatterns = [
     path('auth/logout/', logout_user, name='logout_user'),
     path('auth/update/', update_user, name='update_user'),
     path('auth/delete/', delete_user, name='delete_user'),
+    path('auth/relapse/', relapse, name='relapse'),
 
     # User endpoints (admin only or public depending on your use-case)
     path('leaderboard/', leaderboard, name='leaderboard'),

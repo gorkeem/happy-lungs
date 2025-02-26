@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
+import SettingsPage from "./pages/SettingsPage";
 import WelcomePage from "./pages/WelcomePage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import CommunityPage from "./pages/CommunityPage";
@@ -48,12 +49,12 @@ const App = () => {
                     path="/login"
                     element={!authUser ? <LoginPage /> : <Navigate to="/" />}
                 />
-                {/* <Route
-                    path="/profile"
+                <Route
+                    path="/settings"
                     element={
-                        authUser ? <ProfilePage /> : <Navigate to="/welcome" />
+                        authUser ? <SettingsPage /> : <Navigate to="/welcome" />
                     }
-                /> */}
+                />
                 <Route
                     path="/community"
                     element={

@@ -115,6 +115,19 @@ export const useAuthStore = create((set, get) => ({
             set({ isUpdatingProfile: false });
         }
     },
+    relapse: async () => {
+        try {
+            const response = await axiosInstance.post(
+                "/dashboard/auth/relapse/"
+            );
+            toast.success(
+                response.data.message || "Relapsed successfully. Stats reset!"
+            );
+            await get().checkAuth(); // Refresh stats
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Failed to relapse");
+        }
+    },
     leaderboard: async () => {
         set({ isLoadingLeaderboard: true });
         try {

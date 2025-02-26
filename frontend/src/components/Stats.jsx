@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import DancingIcon from "./DancingIcon";
 import { motion } from "framer-motion";
 import Milestones from "./Milestones";
+import { useNavigate } from "react-router-dom";
+import RelapseModal from "./RelapseModal";
 
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -15,17 +17,61 @@ const itemVariants = {
 };
 
 const Stats = () => {
-    const { authUser, isLoadingStats, stats, isCheckingAuth } = useAuthStore();
+    const { authUser, isLoadingStats, stats, isCheckingAuth, relapse } =
+        useAuthStore();
+    const navigate = useNavigate();
+    const [showConfirm, setShowConfirm] = useState(false);
+
+    const handleRelapse = () => {
+        setShowConfirm(true);
+    };
+    const confirmRelapse = async () => {
+        await relapse();
+        setShowConfirm(false);
+    };
+
+    const cancelRelapse = () => {
+        setShowConfirm(false);
+    };
+
+    const goToSettings = () => {
+        navigate("/settings");
+    };
 
     return (
         <div className="flex flex-col min-h-screen">
+            {showConfirm && (
+                <RelapseModal
+                    message="Are you sure you want to start over?"
+                    onConfirm={confirmRelapse}
+                    onCancel={cancelRelapse}
+                />
+            )}
             {/* header */}
             <header className="p-4 shadow-md">
-                <div className="flex items-center space-x-4">
-                    <DancingIcon w="50" h="50" />
-                    <h1 className="text-3xl font-bold">
-                        {authUser?.username}'s stats
-                    </h1>
+                <div className="flex justify-between items-center">
+                    <div className="flex flex-row items-center space-x-4">
+                        <DancingIcon w="50" h="50" />
+                        <h1 className="text-3xl font-bold">
+                            {authUser?.username}'s stats
+                        </h1>
+                    </div>
+
+                    {/* Action buttons */}
+                    <div className="flex space-x-4">
+                        <button
+                            className="btn btn-error btn-sm"
+                            onClick={handleRelapse}
+                        >
+                            Relapse
+                        </button>
+                        <button
+                            className="btn btn-outline btn-sm"
+                            onClick={goToSettings}
+                        >
+                            Settings
+                        </button>
+                    </div>
                 </div>
             </header>
 
@@ -69,7 +115,7 @@ const Stats = () => {
                         >
                             <div className="card-body">
                                 <h2 className="card-title text-lg">
-                                    Co level status
+                                    CO level status
                                 </h2>
                                 <p className="text-sm">
                                     {stats.co_level_status}
@@ -84,7 +130,7 @@ const Stats = () => {
                             </div>
                         </motion.div>
 
-                        {/* mini stats using flex-wrap */}
+                        {/* mini stats */}
                         <motion.div
                             className="stats shadow-xl p-4 flex flex-wrap gap-4"
                             variants={itemVariants}

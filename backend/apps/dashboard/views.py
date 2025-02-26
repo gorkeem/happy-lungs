@@ -1,5 +1,5 @@
 # from django.shortcuts import render
-from datetime import timezone
+from django.utils.timezone import now
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -216,7 +216,7 @@ def update_user(request):
             if "quit_date" in data:
                 user_stats.quit_date = data["quit_date"]
             if "relapse" in data and data["relapse"] is True:
-                user_stats.quit_date = timezone.now()
+                user_stats.quit_date = now()
             if "cigs_per_day" in data:
                 user_stats.cigs_per_day = data["cigs_per_day"]
             if "cost_per_pack" in data:
@@ -231,6 +231,17 @@ def update_user(request):
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def relapse(request):
+    user = request.user
+    try:
+        user_stats = user.userstats
+        user_stats.quit_date = now()
+        user_stats.save()
+        return Response({"message": "Relapsed successfully. Your quit date has been reset!"}, status=status.HTTP_200_OK)
+    except UserStats.DoesNotExist:
+        return Response({"error": "User stats not found."}, status=status.HTTP_404_NOT_FOUND)
 
 # Search a specific user by username and get user with stats
 @api_view(['GET'])
