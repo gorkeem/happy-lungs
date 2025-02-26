@@ -69,7 +69,7 @@ const Sidebar = () => {
         : sidebarElementsWelcome;
 
     return (
-        <div className="flex h-screen">
+        <div className="sticky top-0 flex h-screen">
             <div
                 className={`flex flex-col mt-5 p-4 transition-all duration-300 ${
                     isOpen ? "w-48" : "w-24"

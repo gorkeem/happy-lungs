@@ -14,6 +14,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from datetime import timedelta
 import os
+import dj_database_url
 
 # Get values from .env file
 load_dotenv()
@@ -66,7 +67,15 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': (
         'rest_framework.pagination.PageNumberPagination',
     ),
-    'PAGE_SIZE': 10,
+    'PAGE_SIZE': 10
+    # 'DEFAULT_THROTTLE_CLASSES': [
+    #     'rest_framework.throttling.AnonRateThrottle',
+    #     'rest_framework.throttling.UserRateThrottle',
+    # ],
+    # 'DEFAULT_THROTTLE_RATES': {
+    #     'anon': '10/minute',
+    #     'user': '100/minute'
+    # }
 }
 
 MIDDLEWARE = [
@@ -130,13 +139,12 @@ WSGI_APPLICATION = 'happylungs.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 # DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
+#     'default': dj_database_url.config(
+#         # Replace this value with your local database's connection string.
+#         default=os.getenv("POSTGRESQL_RENDER"),
+#         conn_max_age=600
+#     )
 # }
-
-
 
 DATABASES = {
     'default': {

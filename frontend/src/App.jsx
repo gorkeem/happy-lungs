@@ -5,10 +5,10 @@ import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import WelcomePage from "./pages/WelcomePage";
 import LeaderboardPage from "./pages/LeaderboardPage";
+import CommunityPage from "./pages/CommunityPage";
 import { useAuthStore } from "./store/useAuthStore";
 import { Toaster } from "react-hot-toast";
 import { useThemeStore } from "./store/useThemeStore";
-import CommunityPage from "./pages/CommunityPage";
 
 const App = () => {
     const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -18,7 +18,7 @@ const App = () => {
         checkAuth();
     }, [checkAuth]);
 
-    console.log("authUser is:", { authUser });
+    // console.log("authUser is:", { authUser });
 
     if (isCheckingAuth && !authUser) {
         return (
@@ -29,7 +29,10 @@ const App = () => {
     }
 
     return (
-        <div data-theme={lightTheme ? "pastel" : "dark"} className="font-mono">
+        <div
+            data-theme={lightTheme ? "cupcake" : "night"}
+            className="font-mono"
+        >
             <Routes>
                 <Route
                     path="/"

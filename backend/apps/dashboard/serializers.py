@@ -129,7 +129,7 @@ class UserSerializer(serializers.ModelSerializer):
     
 # Serializers for getting other users' stats and user info
 class PublicUserSerializer(serializers.ModelSerializer):
-    date_joined = serializers.DateTimeField(format="%d/%m/%Y")
+    date_joined = serializers.DateTimeField()
     
     class Meta:
         model = get_user_model()

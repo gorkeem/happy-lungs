@@ -44,21 +44,21 @@ const Leaderboard = () => {
                     <h1 className="text-3xl font-bold mb-4">Leaderboard</h1>
                     <div className="overflow-x-auto">
                         <table className="w-full table-fixed divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
+                            <thead className="">
                                 <tr>
-                                    <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-2 py-2 text-left text-xs font-medium  uppercase tracking-wider">
                                         Rank
                                     </th>
-                                    <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-2 py-2 text-left text-xs font-medium  uppercase tracking-wider">
                                         User
                                     </th>
-                                    <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-2 py-2 text-left text-xs font-medium  uppercase tracking-wider">
                                         Days Since Quit
                                     </th>
-                                    <th className="px-2 py-2 hidden sm:table-cell text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-2 py-2 hidden sm:table-cell text-left text-xs font-medium  uppercase tracking-wider">
                                         Money Saved
                                     </th>
-                                    <th className="px-2 py-2 hidden md:table-cell text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-2 py-2 hidden md:table-cell text-left text-xs font-medium  uppercase tracking-wider">
                                         Member Since
                                     </th>
                                 </tr>
@@ -69,7 +69,7 @@ const Leaderboard = () => {
                                         key={`${item.user.id}-${index}`}
                                         variants={rowVariants}
                                     >
-                                        <td className="px-2 py-2">
+                                        <td className="px-2 py-2 text-black">
                                             {index + 1 === 1 ? (
                                                 <span className="text-yellow-500">
                                                     🥇
@@ -86,17 +86,19 @@ const Leaderboard = () => {
                                                 index + 1
                                             )}
                                         </td>
-                                        <td className="px-2 py-2">
+                                        <td className="px-2 py-2 text-black">
                                             {item.user.username}
                                         </td>
-                                        <td className="px-2 py-2">
+                                        <td className="px-2 py-2 text-black">
                                             {item.days_since_quit}
                                         </td>
-                                        <td className="px-2 py-2 hidden sm:table-cell">
+                                        <td className="px-2 py-2 text-black hidden sm:table-cell">
                                             {item.money_saved}€
                                         </td>
-                                        <td className="px-2 py-2 hidden md:table-cell">
-                                            {item.user.date_joined}
+                                        <td className="px-2 py-2 text-black hidden md:table-cell">
+                                            {new Date(
+                                                item.user.date_joined
+                                            ).toDateString()}
                                         </td>
                                     </motion.tr>
                                 ))}

@@ -5,14 +5,30 @@ from rest_framework.response import Response
 from .models import Post, Comment, Like
 from .serializers import PostSerializer, CommentSerializer, LikeSerializer
 from rest_framework import status
+from django.db.models import Q
+from happylungs.utils.paginator import CustomPagination
 
-# Get all posts
+
+
+# Get all posts (optionally with a query)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_posts(request):
+    query = request.query_params.get("q", "").strip()
     posts = Post.objects.all()
-    serializer = PostSerializer(posts, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    if query:
+        posts = posts.filter(
+            Q(title__icontains=query) |
+            Q(content__icontains=query) |
+            Q(user__username__icontains=query) |
+            Q(comments__content__icontains=query)
+        ).distinct()
+    paginator = CustomPagination()
+    paginated_posts = paginator.paginate_queryset(posts, request)
+    serializer = PostSerializer(paginated_posts, many=True)
+    
+    return paginator.get_paginated_response(serializer.data)
+
 
 # Get a single post
 @api_view(['GET'])
@@ -96,7 +112,7 @@ def update_comment(request, comment_id):
 
 # Delete a comment
 @api_view(['DELETE'])
-@permission_classes(IsAuthenticated)
+@permission_classes([IsAuthenticated])
 def delete_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
     if comment.user != request.user:
@@ -116,12 +132,14 @@ def like_post(request, post_id):
         # Unlike
         post.likes.remove(user)
         message = "Post unliked"
+        flag = False
     else:
         # Like
         post.likes.add(user)
         message = "Post liked"
+        flag = True
     
-    return Response({"message": message}, status=status.HTTP_200_OK)
+    return Response({"message": message, "data": flag}, status=status.HTTP_200_OK)
 
 # Like a comment, if already liked, unlike the comment
 @api_view(['POST'])

@@ -9,7 +9,7 @@ export const useThemeStore = create(
                 set({ lightTheme });
                 document.documentElement.setAttribute(
                     "data-theme",
-                    lightTheme ? "pastel" : "dark"
+                    lightTheme ? "cupcake" : "night"
                 );
             },
         }),

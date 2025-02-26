@@ -2,8 +2,8 @@ from rest_framework import serializers
 from .models import Post, Comment, Like
 
 class PostSerializer(serializers.ModelSerializer):
-    user = serializers.StringRelatedField()
-    likes = serializers.StringRelatedField(many=True)
+    user = serializers.StringRelatedField(read_only=True)
+    likes = serializers.StringRelatedField(many=True, read_only=True)
     total_likes = serializers.IntegerField(read_only=True)
     total_comments = serializers.IntegerField(read_only=True)
 
@@ -18,9 +18,9 @@ class PostSerializer(serializers.ModelSerializer):
         return obj.comments.count()
 
 class CommentSerializer(serializers.ModelSerializer):
-    user = serializers.StringRelatedField()
-    post = serializers.StringRelatedField()
-    likes = serializers.StringRelatedField(many=True)
+    user = serializers.StringRelatedField(read_only=True)
+    post = serializers.StringRelatedField(read_only=True)
+    likes = serializers.StringRelatedField(many=True, read_only=True)
     total_likes = serializers.IntegerField(read_only=True)
 
     class Meta:
