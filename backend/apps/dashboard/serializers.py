@@ -133,7 +133,7 @@ class PublicUserSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = get_user_model()
-        fields = ['username', 'date_joined']
+        fields = ['id', 'username', 'date_joined']
         
 class PublicUserStatsSerializer(serializers.ModelSerializer):
     user = PublicUserSerializer(read_only=True)

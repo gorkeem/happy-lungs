@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import Comment from "./Comment";
 import ConfirmModal from "./ConfirmModal";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const commentSectionVariants = {
     hidden: { opacity: 0, height: 0 },
@@ -23,6 +24,7 @@ const Post = ({ post }) => {
         deletePost,
     } = useCommunityStore();
 
+    const navigate = useNavigate();
     const [showComments, setShowComments] = useState(false);
     const [newComment, setNewComment] = useState("");
     const [editing, setEditing] = useState(false);
@@ -77,11 +79,17 @@ const Post = ({ post }) => {
         setShowConfirm(false);
     };
 
+    const goToProfile = (userId) => {
+        console.log("POST USER ID", post.user.id);
+        console.log("PRINT USER_ID", userId);
+        navigate(`/profile/${userId}`);
+    };
+
     const postComments = comments[post.id] || [];
 
     return (
         <motion.div
-            className="border p-4 mb-4 rounded shadow-sm bg-base-100"
+            className="border p-4 mb-4 rounded shadow-sm bg-base-200"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
@@ -114,8 +122,14 @@ const Post = ({ post }) => {
                     <div className="flex flex-col">
                         <h2 className="text-xl font-bold">{post.title}</h2>
                         <p className="text-xs text-base-content/60">
-                            by {post.user} on{" "}
-                            {new Date(post.created_at).toLocaleString()}
+                            by{" "}
+                            <button
+                                onClick={() => goToProfile(post.user.id)}
+                                className="btn btn-link text-blue-500 hover:text-blue-700 p-0"
+                            >
+                                {post.user.username}
+                            </button>{" "}
+                            on {new Date(post.created_at).toLocaleString()}
                         </p>
                     </div>
                 )}

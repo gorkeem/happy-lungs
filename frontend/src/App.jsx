@@ -5,6 +5,7 @@ import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import SettingsPage from "./pages/SettingsPage";
 import WelcomePage from "./pages/WelcomePage";
+import ProfilePage from "./pages/ProfilePage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import CommunityPage from "./pages/CommunityPage";
 import { useAuthStore } from "./store/useAuthStore";
@@ -54,6 +55,10 @@ const App = () => {
                     element={
                         authUser ? <SettingsPage /> : <Navigate to="/welcome" />
                     }
+                />
+                <Route
+                    path="/profile/:userId"
+                    element={authUser ? <ProfilePage /> : <LoginPage />}
                 />
                 <Route
                     path="/community"

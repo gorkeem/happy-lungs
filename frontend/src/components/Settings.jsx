@@ -28,6 +28,8 @@ const Settings = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+        console.log("Quit Date in State:", formData.quit_date);
+
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
@@ -50,16 +52,16 @@ const Settings = () => {
     };
 
     return (
-        <div className="min-h-screen flex-1 p-6 bg-base-200 flex justify-center items-start">
+        <div className="min-h-screen flex-1 p-6 flex justify-center items-start">
             <motion.div
-                className="w-full max-w-4xl bg-base-100 p-6 rounded-lg shadow-lg"
+                className="w-full max-w-4xl bg-base-100 p-6 rounded-lg shadow-2xl"
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
             >
                 {showConfirm && (
                     <ConfirmModal
-                        message="Are you sure you want to delete this post?"
+                        message="Are you sure you want to delete your account?"
                         onConfirm={confirmDelete}
                         onCancel={cancelDelete}
                     />
@@ -114,6 +116,7 @@ const Settings = () => {
                                 e.target.blur(); // closes the picker
                             }}
                             className="input input-bordered"
+                            max={new Date().toISOString().split("T")[0]} // Prevent future dates
                         />
                     </div>
                     <div className="grid grid-cols-3 gap-4">

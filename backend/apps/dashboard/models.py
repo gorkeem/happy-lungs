@@ -62,17 +62,19 @@ class UserStats(models.Model):
 
     @property
     def current_co_level(self):
-        #Calculate current CO using precise time difference
         if not self.baseline_co_level or self.baseline_co_level <= 0:
             return Decimal('0.00')
-        
-        # Calculate precise hours since quitting
+
         time_diff = timezone.now() - self.quit_date
         total_hours = time_diff.total_seconds() / 3600
-        
-        # CO half-life formula (5 hours)
-        decay_factor = 2 ** (total_hours / 5)
+
+        # Cap total_hours to avoid overflow (e.g., after 5 years)
+        capped_hours = min(total_hours, 1000)  # Cap to 1000 hours (~41 days)
+
+        decay_factor = 2 ** (capped_hours / 5)
+
         return round(self.baseline_co_level / Decimal(decay_factor), 2)
+
     
     @property
     def co_level_status(self):

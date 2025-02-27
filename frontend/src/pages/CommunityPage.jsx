@@ -59,7 +59,7 @@ const CommunityPage = () => {
     return (
         <div className="flex min-h-screen">
             <Sidebar />
-            <div className="flex-1 p-6 bg-base-200">
+            <div className="flex-1 p-6">
                 <h1 className="text-4xl font-bold mb-6">Community</h1>
 
                 <div className="mb-6">

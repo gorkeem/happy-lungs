@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { useAuthStore } from "../store/useAuthStore";
-import DancingIcon from "./DancingIcon";
 import { motion } from "framer-motion";
+import DancingIcon from "./DancingIcon";
 import Milestones from "./Milestones";
-import { useNavigate } from "react-router-dom";
 import RelapseModal from "./RelapseModal";
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../store/useAuthStore";
 
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -16,10 +16,9 @@ const itemVariants = {
     show: { opacity: 1, y: 0 },
 };
 
-const Stats = () => {
-    const { authUser, isLoadingStats, stats, isCheckingAuth, relapse } =
-        useAuthStore();
+const Stats = ({ user, stats, isLoading, isAuthUser }) => {
     const navigate = useNavigate();
+    const { relapse } = useAuthStore();
     const [showConfirm, setShowConfirm] = useState(false);
 
     const handleRelapse = () => {
@@ -34,9 +33,7 @@ const Stats = () => {
         setShowConfirm(false);
     };
 
-    const goToSettings = () => {
-        navigate("/settings");
-    };
+    const goToSettings = () => navigate("/settings");
 
     return (
         <div className="flex flex-col min-h-screen">
@@ -47,37 +44,41 @@ const Stats = () => {
                     onCancel={cancelRelapse}
                 />
             )}
-            {/* header */}
-            <header className="p-4 shadow-md">
+
+            {/* Header */}
+
+            <header className="p-6 shadow-md">
                 <div className="flex justify-between items-center">
                     <div className="flex flex-row items-center space-x-4">
                         <DancingIcon w="50" h="50" />
                         <h1 className="text-3xl font-bold">
-                            {authUser?.username}'s stats
+                            {user?.username || "User"}'s stats
                         </h1>
                     </div>
 
-                    {/* Action buttons */}
-                    <div className="flex space-x-4">
-                        <button
-                            className="btn btn-error btn-sm"
-                            onClick={handleRelapse}
-                        >
-                            Relapse
-                        </button>
-                        <button
-                            className="btn btn-outline btn-sm"
-                            onClick={goToSettings}
-                        >
-                            Settings
-                        </button>
-                    </div>
+                    {/* Action buttons (only for auth user) */}
+                    {isAuthUser && (
+                        <div className="flex space-x-4">
+                            <button
+                                className="btn btn-error btn-sm"
+                                onClick={handleRelapse}
+                            >
+                                Relapse
+                            </button>
+                            <button
+                                className="btn btn-outline btn-sm"
+                                onClick={goToSettings}
+                            >
+                                Settings
+                            </button>
+                        </div>
+                    )}
                 </div>
             </header>
 
-            {/* main content */}
+            {/* Main content */}
             <main className="flex-1 overflow-y-auto p-4">
-                {isLoadingStats || isCheckingAuth ? (
+                {isLoading ? (
                     <div className="flex items-center justify-center h-full">
                         <span className="loading loading-spinner loading-md"></span>
                     </div>
@@ -88,7 +89,7 @@ const Stats = () => {
                         initial="hidden"
                         animate="show"
                     >
-                        {/* stats card */}
+                        {/* Stats card */}
                         <motion.div
                             className="stats shadow-xl p-4"
                             variants={itemVariants}
@@ -106,31 +107,31 @@ const Stats = () => {
                             </div>
                         </motion.div>
 
-                        {/* co level card */}
-                        <motion.div
-                            className={`card shadow-xl p-4 ${
-                                stats.current_co_level === 0 ? "hidden" : ""
-                            }`}
-                            variants={itemVariants}
-                        >
-                            <div className="card-body">
-                                <h2 className="card-title text-lg">
-                                    CO level status
-                                </h2>
-                                <p className="text-sm">
-                                    {stats.co_level_status}
-                                </p>
-                                <div className="w-full mt-4">
-                                    <progress
-                                        className="progress progress-info w-full"
-                                        value={stats.current_co_level}
-                                        max="100"
-                                    ></progress>
+                        {/* CO level card */}
+                        {stats.current_co_level !== 0 && (
+                            <motion.div
+                                className="card shadow-xl p-4"
+                                variants={itemVariants}
+                            >
+                                <div className="card-body">
+                                    <h2 className="card-title text-lg">
+                                        CO level status
+                                    </h2>
+                                    <p className="text-sm">
+                                        {stats.co_level_status}
+                                    </p>
+                                    <div className="w-full mt-4">
+                                        <progress
+                                            className="progress progress-info w-full"
+                                            value={stats.current_co_level}
+                                            max="100"
+                                        ></progress>
+                                    </div>
                                 </div>
-                            </div>
-                        </motion.div>
+                            </motion.div>
+                        )}
 
-                        {/* mini stats */}
+                        {/* Mini stats */}
                         <motion.div
                             className="stats shadow-xl p-4 flex flex-wrap gap-4"
                             variants={itemVariants}
@@ -142,9 +143,6 @@ const Stats = () => {
                                 <div className="stat-value text-lg">
                                     {stats.money_saved}€
                                 </div>
-                                <div className="stat-desc text-xs">
-                                    Bank boost
-                                </div>
                             </div>
                             <div className="stat flex-1 min-w-[150px]">
                                 <div className="stat-title text-sm">
@@ -152,9 +150,6 @@ const Stats = () => {
                                 </div>
                                 <div className="stat-value text-lg">
                                     {stats.cigarettes_avoided}
-                                </div>
-                                <div className="stat-desc text-xs">
-                                    Health wins
                                 </div>
                             </div>
                             <div className="stat flex-1 min-w-[150px]">
@@ -175,7 +170,7 @@ const Stats = () => {
                             </div>
                         </motion.div>
 
-                        {/* healing milestones */}
+                        {/* Healing milestones */}
                         <motion.div
                             className="stats shadow-xl p-4 flex flex-wrap gap-4"
                             variants={itemVariants}
@@ -192,7 +187,7 @@ const Stats = () => {
                 )}
             </main>
 
-            {/* footer */}
+            {/* Footer */}
             <footer className="p-2 text-center">
                 &copy; {new Date().getFullYear()} HappyLungs
             </footer>
