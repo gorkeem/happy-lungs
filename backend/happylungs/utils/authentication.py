@@ -1,4 +1,6 @@
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.response import Response
+from rest_framework import status
 
 class CookieJWTAuthentication(JWTAuthentication):
     def authenticate(self, request):
@@ -14,5 +16,5 @@ class CookieJWTAuthentication(JWTAuthentication):
             validated_token = self.get_validated_token(raw_token)
         except Exception as e:
             print("Token validation error:", e)
-            return None
+            return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
         return self.get_user(validated_token), validated_token

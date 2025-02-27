@@ -77,6 +77,12 @@ export const useAuthStore = create((set, get) => ({
             await get().checkAuth();
             toast.success("Logged in successfully!");
         } catch (error) {
+            if (error.response?.status === 401) {
+                document.cookie = "access=; Max-Age=0; path=/";
+                document.cookie = "refresh=; Max-Age=0; path=/";
+                await get().logout();
+            }
+
             toast.error(error.response?.data?.message || "Login failed");
         } finally {
             set({ isLoggingIn: false });

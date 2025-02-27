@@ -14,18 +14,15 @@ axiosInstance.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
-
-        // Avoid infinite loops.
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
             try {
-                // Call your refresh endpoint. This should update the cookies.
                 await axiosInstance.post("/dashboard/auth/refresh/");
-                // Retry original request after refresh.
                 return axiosInstance(originalRequest);
             } catch (refreshError) {
-                // If refresh fails, propagate the error.
-                return Promise.reject(refreshError);
+                console.log("Token refresh failed, logging out.");
+                useAuthStore.getState().logout();
+                toast.error("Session expired. Please log in again.");
             }
         }
         return Promise.reject(error);

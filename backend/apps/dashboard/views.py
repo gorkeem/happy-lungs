@@ -120,28 +120,37 @@ def register_user(request):
 def login_user(request):
     email = request.data.get("email")
     password = request.data.get("password")
+
     try:
         user = get_user_model().objects.get(email=email)
     except get_user_model().DoesNotExist:
         return Response({"error": "User does not exist"}, status=status.HTTP_404_NOT_FOUND)
 
+    if not user.is_active:
+        return Response({"error": "Account is inactive. Contact support."}, status=status.HTTP_403_FORBIDDEN)
+
+    # Authenticate the user
     user = authenticate(username=user.username, password=password)
     if user:
         refresh = RefreshToken.for_user(user)
         access_token = str(refresh.access_token)
         refresh_token = str(refresh)
-        response = Response({"message": "Login Successful!", "user": {
-        "id": user.id,
-        "username": user.username,
-        "email": user.email
-    }}, status=status.HTTP_200_OK)
 
-        # Set http-only cookies; secure flag should be true in production with https
+        response = Response({
+            "message": "Login Successful!",
+            "user": {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email
+            }
+        }, status=status.HTTP_200_OK)
+
+        # Set http-only cookies; secure flag should be true in production
         response.set_cookie(
             key="access",
             value=access_token,
             httponly=True,
-            secure=False,  # Change to True when using https in production
+            secure=False,  # Change to True when using HTTPS in production
             samesite="None"
         )
         response.set_cookie(
@@ -152,8 +161,9 @@ def login_user(request):
             samesite="None"
         )
         return response
-    else:
-        return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    # Handle invalid credentials
+    return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
 # Logout user
 @api_view(['POST'])
@@ -182,12 +192,12 @@ def delete_user(request):
     user = request.user
     refresh_token = request.data.get("refresh") or request.COOKIES.get("refresh")
 
-    try:
-        if refresh_token:
+    if refresh_token:
+        try:
             token = RefreshToken(refresh_token)
             token.blacklist()
-    except Exception as e:
-        return Response({"error": f"Failed to blacklist token: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print(f"Failed to blacklist token: {e}")
 
     user.delete()
     response = Response({"message": "User deleted successfully! Tokens invalidated."}, status=status.HTTP_204_NO_CONTENT)
