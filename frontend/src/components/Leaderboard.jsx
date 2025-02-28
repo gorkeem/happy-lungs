@@ -55,16 +55,11 @@ const Leaderboard = () => {
         }
     }, [search, leaderboard_list]);
 
-    useEffect(() => {
-        console.log("Leaderboard data:", leaderboard_list);
-    }, [leaderboard_list]);
-
     const handleSearch = (e) => {
         setSearch(e.target.value.trim());
     };
 
     const goToProfile = (userId) => {
-        console.log("Navigating to profile for userId:", userId); // Debug here
         navigate(`/profile/${userId}`);
     };
 

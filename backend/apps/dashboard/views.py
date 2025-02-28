@@ -1,9 +1,9 @@
-# from django.shortcuts import render
+from django.utils import timezone
 from django.utils.timezone import now
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import UserStats, User
 from .serializers import UserStatsSerializer, RegisterSerializer, UserSerializer, PublicUserSerializer, PublicUserStatsSerializer
 from rest_framework import status
@@ -11,7 +11,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 from django.db import transaction
-from django.contrib.auth.hashers import make_password
+from datetime import datetime
 from django.views.decorators.csrf import csrf_exempt
 
 # Get the stats of a user
@@ -126,9 +126,7 @@ def login_user(request):
     except get_user_model().DoesNotExist:
         return Response({"error": "User does not exist"}, status=status.HTTP_404_NOT_FOUND)
 
-    if not user.is_active:
-        return Response({"error": "Account is inactive. Contact support."}, status=status.HTTP_403_FORBIDDEN)
-
+    
     # Authenticate the user
     user = authenticate(username=user.username, password=password)
     if user:
@@ -210,25 +208,31 @@ def delete_user(request):
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def update_user(request):
-    user = request.user # Get the logged in user
-    data = request.data # Get the data from the request
+    user = request.user
+    data = request.data
 
+    print(f"📩 Received update data: {data}")
+    
     try:
         with transaction.atomic():
+        
             # Update User fields
             if "username" in data:
                 user.username = data["username"]
             if "email" in data:
                 user.email = data["email"]
-            if "password" in data:
-                user.password = make_password(data["password"])
-            
+            if "password" in data and not data["password"] == "":
+                user.set_password(data["password"])
+
             # Update UserStats fields
-            user_stats = user.userstats  # Get the UserStats instance
+            user_stats = user.userstats
             if "quit_date" in data:
-                user_stats.quit_date = data["quit_date"]
-            if "relapse" in data and data["relapse"] is True:
-                user_stats.quit_date = now()
+                try:
+                    parsed_date = timezone.make_aware(datetime.strptime(data["quit_date"], "%Y-%m-%d"))
+                    user_stats.quit_date = parsed_date
+                except Exception as e:
+                    return Response({"error": "Invalid date format"}, status=status.HTTP_400_BAD_REQUEST)
+
             if "cigs_per_day" in data:
                 user_stats.cigs_per_day = data["cigs_per_day"]
             if "cost_per_pack" in data:
@@ -278,9 +282,6 @@ def search_user(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def leaderboard(request):
-    # Ordering by quit_date ascending so earlier quit_date = higher days quit
     user_stats = UserStats.objects.all().order_by('quit_date')
     serializer = PublicUserStatsSerializer(user_stats, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
-
-

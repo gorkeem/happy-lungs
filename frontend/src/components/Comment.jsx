@@ -98,10 +98,10 @@ const Comment = ({ comment, onLike, postId }) => {
                 {/* Comment Actions */}
                 <div className="flex items-center space-x-4">
                     <button
-                        onClick={() => onLike(comment.id)}
+                        onClick={() => onLike(comment.id, postId)}
                         className="btn btn-sm btn-accent"
                     >
-                        Like
+                        {comment.is_liked ? "Unlike" : "Like"}
                     </button>
                     <span className="text-sm">
                         {comment.total_likes}{" "}

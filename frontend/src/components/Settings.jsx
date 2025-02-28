@@ -28,16 +28,19 @@ const Settings = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        console.log("Quit Date in State:", formData.quit_date);
-
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        await update_profile(formData);
+        const updatedFormData = {
+            ...formData,
+            quit_date: formData.quit_date,
+        };
+        await update_profile(updatedFormData);
         navigate("/");
     };
+
     const handleDeleteAccount = () => {
         setShowConfirm(true);
     };
@@ -116,7 +119,7 @@ const Settings = () => {
                                 e.target.blur(); // closes the picker
                             }}
                             className="input input-bordered"
-                            max={new Date().toISOString().split("T")[0]} // Prevent future dates
+                            // max={new Date().toISOString().split("T")[0]} // Prevent future dates
                         />
                     </div>
                     <div className="grid grid-cols-3 gap-4">

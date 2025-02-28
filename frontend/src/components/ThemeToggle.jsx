@@ -1,5 +1,4 @@
 import React from "react";
-import { useState } from "react";
 import { useThemeStore } from "../store/useThemeStore";
 
 const ThemeToggle = () => {

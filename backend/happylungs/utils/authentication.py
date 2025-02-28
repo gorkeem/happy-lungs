@@ -6,7 +6,7 @@ class CookieJWTAuthentication(JWTAuthentication):
     def authenticate(self, request):
         raw_token = request.COOKIES.get("access")
         if raw_token is None:
-            # Fallback: check header if needed
+            # Check header if needed
             header = self.get_header(request)
             if header:
                 raw_token = self.get_raw_token(header)

@@ -4,6 +4,7 @@ import Post from "../components/Post";
 import SearchBar from "../components/SearchBar";
 import { useCommunityStore } from "../store/useCommunityStore";
 import { motion, AnimatePresence } from "framer-motion";
+import FilterBar from "../components/FilterBar";
 
 const containerVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -34,11 +35,15 @@ const CommunityPage = () => {
     const [search, setSearch] = useState("");
     const [showModal, setShowModal] = useState(false);
     const [newPost, setNewPost] = useState({ title: "", content: "" });
+    const [filters, setFilters] = useState({
+        sortField: "created_at",
+        sortOrder: "desc",
+    });
 
-    // Load posts on component mount & when page/search changes
+    // Load posts based on applied filters and search bar results
     useEffect(() => {
-        getPosts(search, currentPage);
-    }, [search, currentPage, getPosts]);
+        getPosts(search, currentPage, filters);
+    }, [search, currentPage, filters, getPosts]);
 
     const handleCreatePost = async (e) => {
         e.preventDefault();
@@ -62,11 +67,16 @@ const CommunityPage = () => {
             <div className="flex-1 p-6">
                 <h1 className="text-4xl font-bold mb-6">Community</h1>
 
-                <div className="mb-6">
-                    <SearchBar
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                    />
+                <div className="mb-6 pt-6">
+                    <div className="space-y-4">
+                        <SearchBar
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                        <div className="pt-2">
+                            <FilterBar onFilterChange={setFilters} />
+                        </div>
+                    </div>
                 </div>
 
                 <div className="mb-8">

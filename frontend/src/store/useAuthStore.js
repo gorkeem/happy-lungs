@@ -105,18 +105,20 @@ export const useAuthStore = create((set, get) => ({
     update_profile: async (data) => {
         set({ isUpdatingProfile: true });
         try {
+            console.log("📤 Sending update payload:", data);
             const response = await axiosInstance.put(
                 "/dashboard/auth/update/",
                 data
             );
-            set({ authUser: { ...get().authUser, ...data } });
+            console.log("✅ Update response:", response);
 
+            set({ authUser: { ...get().authUser, ...data } });
             if ("quit_date" in data || "cigs_per_day" in data) {
                 await get().checkAuth();
             }
-
             toast.success("Profile updated successfully!");
         } catch (error) {
+            console.error("❌ Update failed:", error.response?.data);
             toast.error(error.response?.data?.message || "Update failed");
         } finally {
             set({ isUpdatingProfile: false });

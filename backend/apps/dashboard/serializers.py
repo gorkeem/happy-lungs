@@ -6,6 +6,8 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from datetime import datetime
+
 
 # Serializer for the UserStats model
 class UserStatsSerializer(serializers.ModelSerializer):
@@ -62,7 +64,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def validate_password(self, value):
         try:
-            validate_password(value)
+            validate_password(value) # Django password validator
         except ValidationError as e:
             raise serializers.ValidationError(e.messages)
         return value
@@ -85,9 +87,21 @@ class RegisterSerializer(serializers.ModelSerializer):
         return value
     
     def validate_quit_date(self, quit_date):
-        if quit_date > timezone.now().date():
-            raise serializers.ValidationError("Quit date cannot be in the future")
-        return quit_date
+        try:
+            if isinstance(quit_date, str):
+                quit_date = datetime.fromisoformat(quit_date.replace("Z", "+00:00"))
+
+            if timezone.is_naive(quit_date):
+                quit_date = timezone.make_aware(quit_date, timezone.get_current_timezone())
+
+            if quit_date > timezone.now():
+                raise serializers.ValidationError("Quit date cannot be in the future")
+            
+            return quit_date
+
+        except Exception as e:
+            raise serializers.ValidationError(f"Invalid date format for quit date: {str(e)}")
+
     
     def create(self, validated_data):
         with transaction.atomic():  # Rollback if any error occurs

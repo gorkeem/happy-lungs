@@ -13,15 +13,16 @@ export const useCommunityStore = create((set, get) => ({
     hasPrevPage: false,
 
     // Fetch posts with pagination
-    getPosts: async (query = "", page = 1) => {
+    getPosts: async (
+        query = "",
+        page = 1,
+        filters = { sortField: "created_at", sortOrder: "desc" }
+    ) => {
         set({ isLoadingPosts: true });
         try {
             const response = await axiosInstance.get(
-                `/forum/posts/?q=${query}&page=${page}`
+                `/forum/posts/?q=${query}&page=${page}&sort=${filters.sortField}&order=${filters.sortOrder}`
             );
-
-            console.log("Pagination response:", response.data);
-
             set({
                 posts: response.data.results,
                 currentPage: page,
@@ -160,21 +161,22 @@ export const useCommunityStore = create((set, get) => ({
             const response = await axiosInstance.post(
                 `/forum/posts/${postId}/like/`
             );
-            // Get liked flag from response.data.data instead of response.data.liked
-            const liked = response.data.data;
-            toast.success(response.data.message);
+            const { is_liked } = response.data;
+
             set((state) => ({
                 posts: state.posts.map((p) =>
                     p.id === postId
                         ? {
                               ...p,
-                              total_likes: liked
+                              total_likes: is_liked
                                   ? p.total_likes + 1
                                   : p.total_likes - 1,
+                              is_liked,
                           }
                         : p
                 ),
             }));
+            toast.success(response.data.message);
         } catch (error) {
             toast.error(
                 error.response?.data?.message || "Error toggling like on post"
@@ -188,8 +190,25 @@ export const useCommunityStore = create((set, get) => ({
             const response = await axiosInstance.post(
                 `/forum/comments/${commentId}/like/`
             );
+            const { is_liked } = response.data;
+
+            set((state) => ({
+                comments: {
+                    ...state.comments,
+                    [postId]: state.comments[postId].map((c) =>
+                        c.id === commentId
+                            ? {
+                                  ...c,
+                                  total_likes: is_liked
+                                      ? c.total_likes + 1
+                                      : c.total_likes - 1,
+                                  is_liked,
+                              }
+                            : c
+                    ),
+                },
+            }));
             toast.success(response.data.message);
-            await get().getComments(postId);
         } catch (error) {
             toast.error(
                 error.response?.data?.message ||

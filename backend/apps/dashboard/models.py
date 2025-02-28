@@ -8,10 +8,10 @@ class UserStats(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # User
     quit_date = models.DateTimeField(default=timezone.now)  # Quit smoking date
 
-    cigs_per_day = models.PositiveIntegerField(default=20)
-    cost_per_pack = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
-    cigs_in_pack = models.PositiveIntegerField(default=20)
-    baseline_co_level = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    cigs_per_day = models.PositiveIntegerField(default=20) # Cigarettes per day
+    cost_per_pack = models.DecimalField(max_digits=6, decimal_places=2, default=0.00) # Cost per pack
+    cigs_in_pack = models.PositiveIntegerField(default=20) # Cigarettes in pack
+    baseline_co_level = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True) # Base CO level
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -67,8 +67,6 @@ class UserStats(models.Model):
 
         time_diff = timezone.now() - self.quit_date
         total_hours = time_diff.total_seconds() / 3600
-
-        # Cap total_hours to avoid overflow (e.g., after 5 years)
         capped_hours = min(total_hours, 1000)  # Cap to 1000 hours (~41 days)
 
         decay_factor = 2 ** (capped_hours / 5)
@@ -129,6 +127,8 @@ class UserStats(models.Model):
         if not self.baseline_co_level:
             # More accurate formula: 0.5ppm per cigarette (medical approximation)
             self.baseline_co_level = Decimal(self.cigs_per_day) * Decimal('0.5')
+        if self.quit_date and timezone.is_naive(self.quit_date):
+            self.quit_date = timezone.make_aware(self.quit_date, timezone.get_current_timezone())
         super().save(*args, **kwargs)
 
 # Username field should be unique

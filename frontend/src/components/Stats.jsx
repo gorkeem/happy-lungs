@@ -46,7 +46,6 @@ const Stats = ({ user, stats, isLoading, isAuthUser }) => {
             )}
 
             {/* Header */}
-
             <header className="p-6 shadow-md">
                 <div className="flex justify-between items-center">
                     <div className="flex flex-row items-center space-x-4">

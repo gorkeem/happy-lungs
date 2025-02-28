@@ -11,12 +11,12 @@ const DancingIcon = (props) => {
                 style={{ width: `${props.w}px`, height: `${props.h}px` }}
                 className="rounded-lg mb-4"
                 animate={{
-                    y: [0, -15, 0], // smooth jump arc
-                    rotate: [0, -5, 0, 5, 0], // tilt alternates
+                    y: [0, -15, 0],
+                    rotate: [0, -5, 0, 5, 0],
                 }}
                 transition={{
                     repeat: Infinity,
-                    duration: 1.5, // smoother timing
+                    duration: 1.5, // total timing of animation
                     ease: "easeInOut",
                 }}
             />

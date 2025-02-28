@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import DancingIcon from "../components/DancingIcon";
 import { LuEye } from "react-icons/lu";
