@@ -19,7 +19,6 @@ export const useAuthStore = create((set, get) => ({
         set({ isLoadingStats: true });
         try {
             const response = await axiosInstance.get("/dashboard/auth/check/");
-            console.log("STATS ARE", response.data.stats);
             set({
                 authUser: response.data.user,
                 stats: response.data.stats || null,
@@ -65,7 +64,6 @@ export const useAuthStore = create((set, get) => ({
             //         "Authorization"
             //     ] = `Bearer ${access}`;
             // }
-            console.log("SIGNUP RESPONSE", response);
             set({ authUser: response.data.user });
             await get().checkAuth();
             toast.success("Account created successfully!");
@@ -115,12 +113,10 @@ export const useAuthStore = create((set, get) => ({
     update_profile: async (data) => {
         set({ isUpdatingProfile: true });
         try {
-            console.log("📤 Sending update payload:", data);
             const response = await axiosInstance.put(
                 "/dashboard/auth/update/",
                 data
             );
-            console.log("✅ Update response:", response);
 
             set({ authUser: { ...get().authUser, ...data } });
             if ("quit_date" in data || "cigs_per_day" in data) {
@@ -128,7 +124,6 @@ export const useAuthStore = create((set, get) => ({
             }
             toast.success("Profile updated successfully!");
         } catch (error) {
-            console.error("❌ Update failed:", error.response?.data);
             toast.error(error.response?.data?.message || "Update failed");
         } finally {
             set({ isUpdatingProfile: false });

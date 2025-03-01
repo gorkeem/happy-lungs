@@ -99,8 +99,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
             if quit_date > timezone.now():
                 raise serializers.ValidationError("Quit date cannot be in the future")
-
-            print("FINAL QUIT DATE IN SERIALIZER", quit_date)
+            
             return quit_date
 
         except Exception as e:
