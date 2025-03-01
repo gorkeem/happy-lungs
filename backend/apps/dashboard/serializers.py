@@ -105,8 +105,6 @@ class RegisterSerializer(serializers.ModelSerializer):
         except Exception as e:
             raise serializers.ValidationError(f"Invalid date format for quit date: {str(e)}")
 
-
-
     
     def create(self, validated_data):
         with transaction.atomic():  # Rollback if any error occurs
