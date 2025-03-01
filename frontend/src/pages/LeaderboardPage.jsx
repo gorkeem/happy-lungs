@@ -4,7 +4,7 @@ import Sidebar from "../components/Sidebar";
 
 const LeaderboardPage = () => {
     return (
-        <div className="flex h-screen">
+        <div className="flex min-h-screen">
             {/* sidebar */}
             <Sidebar />
             {/* main content */}
