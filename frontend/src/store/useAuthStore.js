@@ -19,6 +19,7 @@ export const useAuthStore = create((set, get) => ({
         set({ isLoadingStats: true });
         try {
             const response = await axiosInstance.get("/dashboard/auth/check/");
+            console.log("STATS ARE", response.data.stats);
             set({
                 authUser: response.data.user,
                 stats: response.data.stats || null,
