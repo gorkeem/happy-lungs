@@ -88,9 +88,11 @@ class RegisterSerializer(serializers.ModelSerializer):
     
     def validate_quit_date(self, quit_date):
         try:
+            print(f"Validating quit_date: {quit_date}")
+            
             if isinstance(quit_date, str):
                 quit_date = datetime.fromisoformat(quit_date.replace("Z", "+00:00"))
-
+            
             if timezone.is_naive(quit_date):
                 quit_date = timezone.make_aware(quit_date, timezone.get_current_timezone())
 
@@ -101,6 +103,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         except Exception as e:
             raise serializers.ValidationError(f"Invalid date format for quit date: {str(e)}")
+
 
     
     def create(self, validated_data):

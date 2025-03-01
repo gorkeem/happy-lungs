@@ -76,19 +76,23 @@ def refresh_token(request):
 
 
 # Register a user
+@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_user(request):
     try:
-    
+        print(f"Received registration data: {request.data}")
+        
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
+            print("Serializer is valid. Saving user...")
             user = serializer.save()
             
             # Generate tokens
             refresh = RefreshToken.for_user(user)
             access_token = str(refresh.access_token)
             refresh_token = str(refresh)
+            print("Tokens generated successfully")
             
             # Serialize the user object
             user_serializer = UserSerializer(user)
@@ -103,7 +107,7 @@ def register_user(request):
                 key="access",
                 value=access_token,
                 httponly=True,
-                secure=True,  # set true in production with https
+                secure=True,
                 samesite="Lax"
             )
             response.set_cookie(
@@ -113,12 +117,17 @@ def register_user(request):
                 secure=True,
                 samesite="Lax"
             )
+            
+            print("User created and response sent")
             return response
+        
+        print(f"Registration failed: {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
     except Exception as e:
         print(f"Error during registration: {e}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
+
 # Login user
 @api_view(['POST'])
 @permission_classes([AllowAny])
