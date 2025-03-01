@@ -16,14 +16,13 @@ from datetime import timedelta
 import os
 import dj_database_url
 
-
+# Get values from .env file
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-# Get values from .env file
-load_dotenv()
 print("Database URL:", os.getenv('POSTGRESQL_RENDER'))
+
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
