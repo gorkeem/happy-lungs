@@ -11,7 +11,7 @@ from datetime import datetime
 
 # Serializer for the UserStats model
 class UserStatsSerializer(serializers.ModelSerializer):
-    quit_date = serializers.DateTimeField()
+    quit_date = serializers.DateField()
     time_since_quit = serializers.SerializerMethodField()
     days_since_quit = serializers.SerializerMethodField()
     money_saved = serializers.SerializerMethodField()
@@ -90,15 +90,13 @@ class RegisterSerializer(serializers.ModelSerializer):
         try:
             print(f"Validating quit_date: {quit_date}")
 
-            # Convert to datetime if it’s just a date
-            if isinstance(quit_date, str):
-                quit_date = datetime.strptime(quit_date, "%Y-%m-%d")
+            # Convert date to full datetime with time set to 00:00
+            quit_date = datetime.combine(quit_date, datetime.min.time())
             
-            # Force timezone awareness
-            if timezone.is_naive(quit_date):
-                quit_date = timezone.make_aware(quit_date, timezone.get_current_timezone())
+            # Make it timezone-aware
+            quit_date = timezone.make_aware(quit_date, timezone.get_current_timezone())
 
-            # Check if the date is in the future
+            # Check if date is in the future
             if quit_date > timezone.now():
                 raise serializers.ValidationError("Quit date cannot be in the future")
             
