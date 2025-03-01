@@ -56,14 +56,15 @@ export const useAuthStore = create((set, get) => ({
                 "/dashboard/auth/register/",
                 data
             );
-            const { access, refresh } = response.data;
-            if (access) {
-                localStorage.setItem("access_token", access);
-                localStorage.setItem("refresh_token", refresh);
-                axios.defaults.headers.common[
-                    "Authorization"
-                ] = `Bearer ${access}`;
-            }
+            // const { access, refresh } = response.data;
+            // if (access) {
+            //     localStorage.setItem("access_token", access);
+            //     localStorage.setItem("refresh_token", refresh);
+            //     axios.defaults.headers.common[
+            //         "Authorization"
+            //     ] = `Bearer ${access}`;
+            // }
+            console.log("SIGNUP RESPONSE", response);
             set({ authUser: response.data.user });
             await get().checkAuth();
             toast.success("Account created successfully!");

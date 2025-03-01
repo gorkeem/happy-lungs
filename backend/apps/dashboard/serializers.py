@@ -11,7 +11,7 @@ from datetime import datetime, date
 
 # Serializer for the UserStats model
 class UserStatsSerializer(serializers.ModelSerializer):
-    quit_date = serializers.DateField()
+    quit_date = serializers.DateTimeField()
     time_since_quit = serializers.SerializerMethodField()
     days_since_quit = serializers.SerializerMethodField()
     money_saved = serializers.SerializerMethodField()
@@ -100,6 +100,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             if quit_date > timezone.now():
                 raise serializers.ValidationError("Quit date cannot be in the future")
 
+            print("FINAL QUIT DATE IN SERIALIZER", quit_date)
             return quit_date
 
         except Exception as e:
