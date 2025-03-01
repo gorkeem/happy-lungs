@@ -20,7 +20,9 @@ const Settings = () => {
         username: authUser?.username || "",
         email: authUser?.email || "",
         password: "",
-        quit_date: new Date(stats?.quit_date).toISOString(),
+        quit_date: stats?.quit_date
+            ? stats?.quit_date.toISOString().split("T")[0]
+            : "",
         cigs_per_day: stats?.cigs_per_day || 0,
         cost_per_pack: stats?.cost_per_pack || 0,
         cigs_in_pack: stats?.cigs_in_pack || 0,
