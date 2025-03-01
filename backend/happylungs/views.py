@@ -20,9 +20,15 @@ def index(request):
 
 def view_logs(request):
     log_path = os.path.join(BASE_DIR, 'django_errors.log')
+    print(f"Checking log path: {log_path}")
+
+    if not os.path.exists(log_path):
+        return HttpResponse(f"Log file not found at: {log_path}", status=404)
+
     try:
         with open(log_path, 'r') as log_file:
             logs = log_file.read()
             return HttpResponse(f"<pre>{logs}</pre>", content_type="text/html")
-    except FileNotFoundError:
-        return HttpResponse("No logs found", status=404)
+    except Exception as e:
+        return HttpResponse(f"Unexpected error: {e}", status=500)
+

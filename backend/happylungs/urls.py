@@ -19,6 +19,15 @@ from django.urls import path, re_path
 from django.urls import include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from . import views
+from django.http import JsonResponse
+import logging
+
+def trigger_error(request):
+    logging.error("🔥 Test error for logging 🔥")
+    return JsonResponse({"message": "Error triggered, check logs!"})
+
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -29,4 +38,4 @@ urlpatterns = [
     re_path(r'^.*$', views.index),
     path('logs/', views.view_logs, name='view_logs'),
 ]
-
+urlpatterns.append(path('trigger-error/', trigger_error))
