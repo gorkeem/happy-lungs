@@ -11,7 +11,7 @@ from datetime import datetime
 
 # Serializer for the UserStats model
 class UserStatsSerializer(serializers.ModelSerializer):
-    quit_date = serializers.DateTimeField()
+    quit_date = serializers.DateField()
     time_since_quit = serializers.SerializerMethodField()
     days_since_quit = serializers.SerializerMethodField()
     money_saved = serializers.SerializerMethodField()

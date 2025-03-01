@@ -6,7 +6,7 @@ from django.conf import settings
 
 class UserStats(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # User
-    quit_date = models.DateTimeField(default=timezone.now)  # Quit smoking date
+    quit_date = models.DateField()  # Quit smoking date
 
     cigs_per_day = models.PositiveIntegerField(default=20) # Cigarettes per day
     cost_per_pack = models.DecimalField(max_digits=6, decimal_places=2, default=0.00) # Cost per pack
