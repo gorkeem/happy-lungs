@@ -30,7 +30,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = ['happy-lungs.onrender.com']
+ALLOWED_HOSTS = ['happy-lungs.onrender.com', 'localhost']
 
 # Application definition
 
@@ -122,7 +122,7 @@ ROOT_URLCONF = 'happylungs.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "backend/staticfiles"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

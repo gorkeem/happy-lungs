@@ -16,13 +16,12 @@ def dump_logs_to_static():
 
 def index(request):
     dump_logs_to_static()
-    try:
-        return render(request, 'index.html')
-    except Exception as e:
-        import logging
-        logging.error(f"Template render error: {e}")
-        return HttpResponse("Template error!", status=500)
+    index_path = os.path.join(os.path.dirname(__file__), "staticfiles/index.html")
 
+    if not os.path.exists(index_path):
+        return HttpResponse("Error: index.html not found!", status=500)
+
+    return render(request, "index.html")
 
 def view_logs(request):
     log_path = os.path.join(BASE_DIR, 'django_errors.log')
