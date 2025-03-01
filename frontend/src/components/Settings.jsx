@@ -20,7 +20,7 @@ const Settings = () => {
         username: authUser?.username || "",
         email: authUser?.email || "",
         password: "",
-        quit_date: stats?.quit_date ? stats.quit_date.split("T")[0] : "",
+        quit_date: stats?.quit_date,
         cigs_per_day: stats?.cigs_per_day || 0,
         cost_per_pack: stats?.cost_per_pack || 0,
         cigs_in_pack: stats?.cigs_in_pack || 0,
@@ -33,11 +33,7 @@ const Settings = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const updatedFormData = {
-            ...formData,
-            quit_date: formData.quit_date,
-        };
-        await update_profile(updatedFormData);
+        await update_profile(formData);
         navigate("/");
     };
 
@@ -119,7 +115,6 @@ const Settings = () => {
                                 e.target.blur(); // closes the picker
                             }}
                             className="input input-bordered"
-                            // max={new Date().toISOString().split("T")[0]} // Prevent future dates
                         />
                     </div>
                     <div className="grid grid-cols-3 gap-4">
