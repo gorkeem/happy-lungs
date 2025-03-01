@@ -16,11 +16,14 @@ from datetime import timedelta
 import os
 import dj_database_url
 
-# Get values from .env file
-load_dotenv()
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Get values from .env file
+load_dotenv()
+print("Database URL:", os.getenv('POSTGRESQL_RENDER'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
@@ -28,7 +31,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['happy-lungs.onrender.com']
 
 # Application definition
 
@@ -38,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
 
     # Third party apps
@@ -82,6 +86,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',  # CORS Middleware
 ]
 
@@ -91,24 +96,27 @@ SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": True,
     "AUTH_COOKIE": "access",  # key name for access token
     "AUTH_COOKIE_HTTP_ONLY": True,
-    "AUTH_COOKIE_SECURE": False,  # change to True in production
-    "AUTH_COOKIE_SAMESITE": "None",
+    "AUTH_COOKIE_SECURE": True,  # change to True in production
+    "AUTH_COOKIE_SAMESITE": "Lax",
+    "BLACKLIST_AFTER_ROTATION": True,
+    "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
 CORS_ALLOW_CREDENTIALS = True
 CSRF_COOKIE_HTTPONLY = True
-CSRF_COOKIE_SAMESITE = "None"
-SESSION_COOKIE_SECURE = False  # Change to True in production
-SESSION_COOKIE_SAMESITE = "None"
-CSRF_COOKIE_SECURE = False  # Change to True in production
+CSRF_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_SECURE = True  # Change to True in production
+SESSION_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SECURE = True  # Change to True in production
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
+    "https://happy-lungs.onrender.com",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:5173",
+    "https://happy-lungs.onrender.com",
 ]
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 ROOT_URLCONF = 'happylungs.urls'
 
@@ -134,24 +142,23 @@ WSGI_APPLICATION = 'happylungs.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# DATABASES = {
-#     'default': dj_database_url.config(
-#         # Replace this value with your local database's connection string.
-#         default=os.getenv("POSTGRESQL_RENDER"),
-#         conn_max_age=600
-#     )
-# }
-
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'happylungs_db',
-        'USER': os.getenv("POSTGRES_USER"),
-        'PASSWORD': os.getenv("POSTGRES_PASSWORD"),
-        'HOST': 'localhost', 
-        'PORT': '5432', 
-    }
+    'default': dj_database_url.config(
+        default=os.getenv('POSTGRESQL_RENDER'), 
+        conn_max_age=600
+    )
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'happylungs_db',
+#         'USER': os.getenv("POSTGRES_USER"),
+#         'PASSWORD': os.getenv("POSTGRES_PASSWORD"),
+#         'HOST': 'localhost', 
+#         'PORT': '5432', 
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -190,7 +197,21 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+if not DEBUG:
+    # Tell Django to copy static assets into a path called `staticfiles` (this is specific to Render)
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+    # Enable the WhiteNoise storage backend, which compresses static files to reduce disk use
+    # and renames the files with unique names for each version to support long-term caching
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# Add this for serving frontend assets
+WHITENOISE_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

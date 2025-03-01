@@ -67,8 +67,8 @@ def refresh_token(request):
             key="access",
             value=new_access_token,
             httponly=True,
-            secure=False,  # change to True in production
-            samesite="None"
+            secure=True,  # change to True in production
+            samesite="Lax"
         )
         return response
     except Exception as e:
@@ -101,15 +101,15 @@ def register_user(request):
             key="access",
             value=access_token,
             httponly=True,
-            secure=False,  # set true in production with https
-            samesite="None"
+            secure=True,  # set true in production with https
+            samesite="Lax"
         )
         response.set_cookie(
             key="refresh",
             value=refresh_token,
             httponly=True,
-            secure=False,
-            samesite="None"
+            secure=True,
+            samesite="Lax"
         )
         return response
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -148,15 +148,15 @@ def login_user(request):
             key="access",
             value=access_token,
             httponly=True,
-            secure=False,  # Change to True when using HTTPS in production
-            samesite="None"
+            secure=True,  # Change to True when using HTTPS in production
+            samesite="Lax"
         )
         response.set_cookie(
             key="refresh",
             value=refresh_token,
             httponly=True,
-            secure=False,
-            samesite="None"
+            secure=True,
+            samesite="Lax"
         )
         return response
 
@@ -210,8 +210,6 @@ def delete_user(request):
 def update_user(request):
     user = request.user
     data = request.data
-
-    print(f"📩 Received update data: {data}")
     
     try:
         with transaction.atomic():
