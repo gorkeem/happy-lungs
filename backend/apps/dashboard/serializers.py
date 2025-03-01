@@ -11,7 +11,7 @@ from datetime import datetime
 
 # Serializer for the UserStats model
 class UserStatsSerializer(serializers.ModelSerializer):
-    quit_date = serializers.DateField()
+    quit_date = serializers.DateTimeField()
     time_since_quit = serializers.SerializerMethodField()
     days_since_quit = serializers.SerializerMethodField()
     money_saved = serializers.SerializerMethodField()
@@ -86,25 +86,22 @@ class RegisterSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("This username is already taken.")
         return value
     
-    # def validate_quit_date(self, quit_date):
-    #     try:
-    #         if isinstance(quit_date, str):
-    #             quit_date = datetime.fromisoformat(quit_date.replace("Z", "+00:00"))
-
-    #         if timezone.is_naive(quit_date):
-    #             quit_date = timezone.make_aware(quit_date, timezone.get_current_timezone())
-
-    #         if quit_date > timezone.now():
-    #             raise serializers.ValidationError("Quit date cannot be in the future")
-            
-    #         return quit_date
-
-    #     except Exception as e:
-    #         raise serializers.ValidationError(f"Invalid date format for quit date: {str(e)}")
     def validate_quit_date(self, quit_date):
-        if quit_date > timezone.localdate():
-            raise serializers.ValidationError("Quit date cannot be in the future")
-        return quit_date
+        try:
+            if isinstance(quit_date, str):
+                quit_date = datetime.fromisoformat(quit_date.replace("Z", "+00:00"))
+
+            if timezone.is_naive(quit_date):
+                quit_date = timezone.make_aware(quit_date, timezone.get_current_timezone())
+
+            if quit_date > timezone.now():
+                raise serializers.ValidationError("Quit date cannot be in the future")
+            
+            return quit_date
+
+        except Exception as e:
+            raise serializers.ValidationError(f"Invalid date format for quit date: {str(e)}")
+
     
     def create(self, validated_data):
         with transaction.atomic():  # Rollback if any error occurs
