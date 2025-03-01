@@ -6,7 +6,7 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from django.db import transaction
-from datetime import datetime
+from datetime import datetime, date
 
 
 # Serializer for the UserStats model
@@ -90,7 +90,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         try:
             if isinstance(quit_date, str):
                 quit_date = datetime.fromisoformat(quit_date.replace("Z", "+00:00"))
-
+            
+            if isinstance(quit_date, date) and not isinstance(quit_date, datetime):
+                quit_date = datetime.combine(quit_date, datetime.min.time())
+            
             if timezone.is_naive(quit_date):
                 quit_date = timezone.make_aware(quit_date, timezone.get_current_timezone())
 

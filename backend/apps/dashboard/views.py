@@ -11,7 +11,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 from django.db import transaction
-from datetime import datetime
+from datetime import datetime, date
 from django.views.decorators.csrf import csrf_exempt
 
 # Get the stats of a user
@@ -210,8 +210,6 @@ def delete_user(request):
 def update_user(request):
     user = request.user
     data = request.data
-
-    print(f"📩 Received update data: {data}")
     
     try:
         with transaction.atomic():
@@ -226,13 +224,25 @@ def update_user(request):
 
             # Update UserStats fields
             user_stats = user.userstats
-            if "quit_date" in data:
-                try:
-                    parsed_date = timezone.make_aware(datetime.strptime(data["quit_date"], "%Y-%m-%d"))
-                    user_stats.quit_date = parsed_date
-                except Exception as e:
-                    return Response({"error": "Invalid date format"}, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                quit_date = data["quit_date"]
+                
+                if isinstance(quit_date, date) and not isinstance(quit_date, datetime):
+                    quit_date = datetime.combine(quit_date, datetime.min.time())
+                
+                if isinstance(quit_date, str):
+                    quit_date = datetime.fromisoformat(quit_date.replace("Z", "+00:00"))
+                
+                if timezone.is_naive(quit_date):
+                    quit_date = timezone.make_aware(quit_date, timezone.get_current_timezone())
+                
+                if quit_date > timezone.now():
+                    return Response({"error": "Quit date cannot be in the future"}, status=status.HTTP_400_BAD_REQUEST)
 
+                user_stats.quit_date = quit_date
+            
+            except Exception as e:
+                return Response({"error": f"Invalid date format: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
             if "cigs_per_day" in data:
                 user_stats.cigs_per_day = data["cigs_per_day"]
             if "cost_per_pack" in data:
