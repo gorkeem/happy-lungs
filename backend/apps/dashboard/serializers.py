@@ -88,15 +88,12 @@ class RegisterSerializer(serializers.ModelSerializer):
     
     def validate_quit_date(self, quit_date):
         try:
-            print(f"Validating quit_date: {quit_date}")
+            if isinstance(quit_date, str):
+                quit_date = datetime.fromisoformat(quit_date.replace("Z", "+00:00"))
 
-            # Convert date to full datetime with time set to 00:00
-            quit_date = datetime.combine(quit_date, datetime.min.time())
-            
-            # Make it timezone-aware
-            quit_date = timezone.make_aware(quit_date, timezone.get_current_timezone())
+            if timezone.is_naive(quit_date):
+                quit_date = timezone.make_aware(quit_date, timezone.get_current_timezone())
 
-            # Check if date is in the future
             if quit_date > timezone.now():
                 raise serializers.ValidationError("Quit date cannot be in the future")
             
