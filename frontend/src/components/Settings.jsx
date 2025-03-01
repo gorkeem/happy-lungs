@@ -20,7 +20,7 @@ const Settings = () => {
         username: authUser?.username || "",
         email: authUser?.email || "",
         password: "",
-        quit_date: stats?.quit_date,
+        quit_date: new Date(stats?.quit_date),
         cigs_per_day: stats?.cigs_per_day || 0,
         cost_per_pack: stats?.cost_per_pack || 0,
         cigs_in_pack: stats?.cigs_in_pack || 0,
@@ -28,8 +28,6 @@ const Settings = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        if (name === "quit_date") {
-        }
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
@@ -112,6 +110,7 @@ const Settings = () => {
                             type="date"
                             name="quit_date"
                             value={formData.quit_date}
+                            max={new Date().toISOString().split("T")[0]}
                             onChange={(e) => {
                                 handleChange(e);
                                 e.target.blur(); // closes the picker
