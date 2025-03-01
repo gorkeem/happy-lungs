@@ -135,6 +135,7 @@ TEMPLATES = [
     },
 ]
 
+
 WSGI_APPLICATION = 'happylungs.wsgi.application'
 
 
