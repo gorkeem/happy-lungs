@@ -22,6 +22,7 @@ from . import views
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('check-static/', views.check_static),
     path('admin/', admin.site.urls),
     path('api/dashboard/', include('apps.dashboard.urls')),
     path('api/forum/', include('apps.forum.urls')),
