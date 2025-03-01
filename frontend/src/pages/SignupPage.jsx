@@ -72,7 +72,7 @@ const SignupPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(formData);
+        console.log("Sending form data:", formData);
         const success = validateForm();
         if (success === true) {
             signup(formData);

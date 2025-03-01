@@ -79,41 +79,46 @@ def refresh_token(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_user(request):
-    serializer = RegisterSerializer(data=request.data)
-    if serializer.is_valid():
-        user = serializer.save()
-        
-        # Generate tokens
-        refresh = RefreshToken.for_user(user)
-        access_token = str(refresh.access_token)
-        refresh_token = str(refresh)
-        
-        # Serialize the user object
-        user_serializer = UserSerializer(user)
-        
-        response = Response({
-            "message": "User created and logged in successfully!",
-            "user": user_serializer.data
-        }, status=status.HTTP_201_CREATED)
-        
-        # Set cookies
-        response.set_cookie(
-            key="access",
-            value=access_token,
-            httponly=True,
-            secure=True,  # set true in production with https
-            samesite="Lax"
-        )
-        response.set_cookie(
-            key="refresh",
-            value=refresh_token,
-            httponly=True,
-            secure=True,
-            samesite="Lax"
-        )
-        return response
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+    try:
+    
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            
+            # Generate tokens
+            refresh = RefreshToken.for_user(user)
+            access_token = str(refresh.access_token)
+            refresh_token = str(refresh)
+            
+            # Serialize the user object
+            user_serializer = UserSerializer(user)
+            
+            response = Response({
+                "message": "User created and logged in successfully!",
+                "user": user_serializer.data
+            }, status=status.HTTP_201_CREATED)
+            
+            # Set cookies
+            response.set_cookie(
+                key="access",
+                value=access_token,
+                httponly=True,
+                secure=True,  # set true in production with https
+                samesite="Lax"
+            )
+            response.set_cookie(
+                key="refresh",
+                value=refresh_token,
+                httponly=True,
+                secure=True,
+                samesite="Lax"
+            )
+            return response
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        print(f"Error during registration: {e}")
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
 # Login user
 @api_view(['POST'])
 @permission_classes([AllowAny])
