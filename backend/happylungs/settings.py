@@ -21,7 +21,6 @@ load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-print("Database URL:", os.getenv('POSTGRESQL_RENDER'))
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -122,7 +121,7 @@ ROOT_URLCONF = 'happylungs.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / "backend/staticfiles"],
+        'DIRS': [BASE_DIR / "backend/staticfiles"],  # Point to built frontend
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -134,6 +133,7 @@ TEMPLATES = [
         },
     },
 ]
+
 
 
 WSGI_APPLICATION = 'happylungs.wsgi.application'
@@ -229,6 +229,8 @@ if not DEBUG:
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_DIRS = [BASE_DIR.parent / "frontend/dist"]  # Add if needed
+
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
