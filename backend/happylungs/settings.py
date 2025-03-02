@@ -145,7 +145,7 @@ WSGI_APPLICATION = 'happylungs.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.getenv('POSTGRESQL_RENDER'), 
+        default=os.getenv('DATABASE_URL'), 
         conn_max_age=600
     )
 }
